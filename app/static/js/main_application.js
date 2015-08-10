@@ -41,10 +41,12 @@ $(document).ready(function(){
         $('#icone_audio').show();
         if(!pausado){
             txt_audio.innerHTML = 'Pausado. Toque na tela para continuar.';
+            meSpeak.stop();
             meSpeak.speak('Pausado. Toque na tela para continuar.', parametros_audio, callback_audio);
             pausado = true;
         }else{
             txt_audio.innerHTML = 'Executando. Toque na tela para pausar.';
+            meSpeak.stop();
             meSpeak.speak('Executando. Toque a tela para pausar.', parametros_audio, callback_audio);
             pausado = false;
         }
