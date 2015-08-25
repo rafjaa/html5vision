@@ -1,5 +1,31 @@
 $(document).ready(function(){
-	// Carrega e configura a API de áudio
+   // Modal configuration 
+   //Inicializa a ação da janela modal.
+   $('.modal-trigger').leanModal();    
+	
+   $('#cancelar').click(function(){
+		$('#speed').val(parametros_audio.speed);
+		$('#pitch').val(parametros_audio.pitch);
+		$('#amplitude').val(parametros_audio.amplitude);
+    });
+
+
+   $('#aplicar').click(function(){
+		var speed = $('#speed').val();
+		var pitch = $('#pitch').val();
+		var amplitude = $('#amplitude').val();
+		//var word_gap = $('#word_gap').val();
+
+		parametros_audio.speed = speed;
+		parametros_audio.pitch = pitch;
+		parametros_audio.amplitude = amplitude;
+		//parametros_audio.word_gap = word_gap;
+		//console.log(parametros_audio); 
+   });
+   // Modal configuration
+
+ 
+    // Carrega e configura a API de áudio
     /*Parametros: variant: variação de características da voz, 
       speed: velocidade de fala, pitch: afinação, amplitude: volume*/
     parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};

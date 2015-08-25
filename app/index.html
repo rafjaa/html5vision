@@ -5,12 +5,73 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Visão Computacional Assistiva</title>
         <link rel="stylesheet" href="static/css/style.css" />
+	<link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css" media="screen,projection"/>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> <!-- Icones -->
     </head>
     <body>
-        <h1>
+	<!-- Navigation start-->
+	  <nav>
+	    <div class="nav-wrapper light-green lighten-2">
+	      <a href="#" class="brand-logo center">
+		   <strong>Visão Computacional</strong> Assistiva
+	      </a>
+	      <ul id="nav-mobile" class="left hide-on-med-and-down">
+		<li><a class="modal-trigger waves-effect waves-light" href="#modal1"><i class="material-icons">settings</i></a></li>
+	      </ul>
+	    </div>
+	  </nav>
+	<!--  Navigation end-->
+	<!--
+	<h1>
             <strong>Visão Computacional</strong> Assistiva
         </h1>        
-        <div id="status">            
+	-->
+        
+	<!-- Modal start-->
+	<!-- Modal Structure -->
+	<div id="modal1" class="modal modal-fixed-footer">
+					
+		<div class="modal-content">
+		  <h4>Configurações de áudio</h4>
+		  <form>
+			<label>	
+			Volume
+			<p class="range-field">
+			<input type="range" id="amplitude" min="0" max="100" value="100"/>
+		</p>
+			</label>
+			<label>	
+			Afinação			
+			<p class="range-field">
+			<input type="range" id="pitch" min="0" max="100" value="60"/>
+		</p>
+			</label>
+		<!--
+			<label>	
+			Word gap
+			<p class="range-field">
+			<input type="range" id="word_gap" min="0" max="10" />
+		</p>
+			</label>
+		-->
+			<label>	
+			Velocidade			
+			<p class="range-field">
+			<input type="range" id="speed" min="0" max="300" value="160" />
+		</p>
+			</label>
+		  </form>
+		</div>
+		
+		<div class="modal-footer">
+			<!-- adicionar 'modal-close' na classe -->
+		  <a href="#!" class="modal-action waves-effect modal-close waves-green btn-flat " id="aplicar" >Aplicar</a>
+		  <a href="#!" class="modal-action waves-effect modal-close waves-red btn-flat " id="cancelar" >Cancelar</a>
+		</div>
+	  </div>
+	<!-- Modal end -->
+	
+	<div id="status">            
             <img id="icone_audio" src="static/img/audio.svg" alt="Ícone áudio em reprodução" />
             <div id="txt_audio"></div>
         </div>
@@ -27,8 +88,9 @@
         <script src="static/js/objectdetect.js"></script>
         <script src="static/js/objectdetect.frontalface.js"></script>
         <script src="static/js/jquery.js"></script>
-		<script src="mespeak/mespeak.js"></script>
+	<script src="mespeak/mespeak.js"></script>
         
         <script src="static/js/main_application.js"></script>
+	<script src="materialize/js/materialize.min.js"></script>
     </body>
 </html>
