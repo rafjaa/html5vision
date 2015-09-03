@@ -1,34 +1,20 @@
 $(document).ready(function(){
-   // Modal configuration 
-   //Inicializa a ação da janela modal.
-   $('.modal-trigger').leanModal();    
-	
-   $('#cancelar').click(function(){
-		$('#speed').val(parametros_audio.speed);
-		$('#pitch').val(parametros_audio.pitch);
-		$('#amplitude').val(parametros_audio.amplitude);
-    });
-
-
-   $('#aplicar').click(function(){
-		var speed = $('#speed').val();
-		var pitch = $('#pitch').val();
-		var amplitude = $('#amplitude').val();
-		//var word_gap = $('#word_gap').val();
-
-		parametros_audio.speed = speed;
-		parametros_audio.pitch = pitch;
-		parametros_audio.amplitude = amplitude;
-		//parametros_audio.word_gap = word_gap;
-		//console.log(parametros_audio); 
-   });
-   // Modal configuration
-
- 
-    // Carrega e configura a API de áudio
-    /*Parametros: variant: variação de características da voz, 
+    // Carrega e configura a API de áudio do cache, se possível(WebStorage API).
+	/*Parametros: variant: variação de características da voz, 
       speed: velocidade de fala, pitch: afinação, amplitude: volume*/
-    parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
+	var parametros_audio_padrao = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
+	var parametros_audio;
+	
+	if(typeof(Storage) !== undefined){
+		if(localStorage['parametros_audio'] === undefined)
+			localStorage['parametros_audio'] = JSON.stringify(parametros_audio_padrao); //Saved in the cache
+		else
+			parametros_audio = localStorage['parametros_audio']; //Cache loaded
+	}else
+		parametros_audio = parametros_audio_padrao; // Without WebStorage support
+		
+	
+	
     var reproduzindo_audio = false;
 
 	meSpeak.loadConfig('mespeak/mespeak_config.json');
@@ -58,11 +44,67 @@ $(document).ready(function(){
             txt_audio.innerHTML = 'Acessando câmera...';
     }
 
+    
+    
+    // Modal configuration 
+   //Inicializa a ação da janela modal.
+    $('.modal-trigger').leanModal({
+        dismissible:false,
+        ready: inicia_modal()
+    });   
+	
+    $('#cancelar').click(function(){
+		if(typeof parametros_audio !== typeof {})
+            parametros_audio = JSON.parse(parametros_audio);
+        
+		$('#speed').val(parametros_audio.speed);
+		$('#pitch').val(parametros_audio.pitch);
+		$('#amplitude').val(parametros_audio.amplitude);
+        $('#detection_accuracy').val(PRECISAO_MINIMA_DETECCAO);
+    });
+
+   $('#aplicar').click(function (){
+       console.log(typeof parametros_audio);
+        if(typeof parametros_audio !== typeof {})
+            parametros_audio = JSON.parse(parametros_audio);
+            
+		parametros_audio.speed = $('#speed').val();
+		parametros_audio.pitch = $('#pitch').val();
+		parametros_audio.amplitude = $('#amplitude').val();
+		PRECISAO_MINIMA_DETECCAO = parseInt($('#detection_accuracy').val(),10);
+		
+		if(typeof(Storage) !== undefined)
+			localStorage['parametros_audio'] = JSON.stringify(parametros_audio);
+		else
+			alert('error');
+    });
+    
+    $('#configuracao_padrao').click(function(){
+       if(typeof parametros_audio !== typeof {})
+            parametros_audio = JSON.parse(parametros_audio);
+		
+		$('#speed').val(parametros_audio_padrao.speed);
+		$('#pitch').val(parametros_audio_padrao.pitch);
+		$('#amplitude').val(parametros_audio_padrao.amplitude);
+        $('#detection_accuracy').val(PRECISAO_MINIMA_DETECCAO_PADRAO);
+    });
+   // Modal configuration
+    
+    //Inicia os valores do modal com os contidos no cache. Chamado todas as vezes em que a janela modal é aberta.
+   function inicia_modal(){
+    if(typeof parametros_audio !== typeof {})
+        parametros_audio = JSON.parse(parametros_audio);
+       
+    $('#speed').val(parametros_audio.speed);
+    $('#pitch').val(parametros_audio.pitch);
+    $('#amplitude').val(parametros_audio.amplitude);
+    $('#detection_accuracy').val(PRECISAO_MINIMA_DETECCAO);
+   }//inicia_modal
 
     // Evento de clique na tela (pause/continue)
     pausado = false;
 
-    $('body').click(function(){
+    $('#corpo').click(function(){
         reproduzindo_audio = true;
         $('#icone_audio').show();
         if(!pausado){
@@ -80,6 +122,7 @@ $(document).ready(function(){
 	
 
     var PRECISAO_MINIMA_DETECCAO = 7;
+    var PRECISAO_MINIMA_DETECCAO_PADRAO = 7;
     
     var txt_audio = document.getElementById('txt_audio');
     video = document.getElementById('video');
@@ -120,7 +163,7 @@ $(document).ready(function(){
             alert('Ocorreu um erro: ' + error);
         }
         
-    }
+    }//gotSources
 
     // Se houver mais de uma câmera, obtém a frontal
     if (typeof MediaStreamTrack === 'undefined'){
