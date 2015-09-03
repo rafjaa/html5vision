@@ -16,7 +16,7 @@
 		   <strong>Visão Computacional</strong> Assistiva
 	      </a>
 	      <ul id="nav-mobile" class="left hide-on-med-and-down">
-		<li><a class="modal-trigger waves-effect waves-light" href="#modal1"><i class="material-icons">settings</i></a></li>
+			<li><a class="modal-trigger waves-effect waves-light" href="#modal1"><i class="material-icons">settings</i></a></li>
 	      </ul>
 	    </div>
 	  </nav>
@@ -29,44 +29,42 @@
         
 	<!-- Modal start-->
 	<!-- Modal Structure -->
-	<div id="modal1" class="modal modal-fixed-footer">
+	<div id="modal1" class="modal modal-fixed-footer" >
 					
 		<div class="modal-content">
-		  <h4>Configurações de áudio</h4>
-		  <form>
-			<label>	
-			Volume
-			<p class="range-field">
-			<input type="range" id="amplitude" min="0" max="100" value="100"/>
-		</p>
-			</label>
-			<label>	
-			Afinação			
-			<p class="range-field">
-			<input type="range" id="pitch" min="0" max="100" value="60"/>
-		</p>
-			</label>
-		<!--
-			<label>	
-			Word gap
-			<p class="range-field">
-			<input type="range" id="word_gap" min="0" max="10" />
-		</p>
-			</label>
-		-->
-			<label>	
-			Velocidade			
-			<p class="range-field">
-			<input type="range" id="speed" min="0" max="300" value="160" />
-		</p>
-			</label>
-		  </form>
+		  <h4>Configurações</h4>
+			<form>
+				<label>	
+					Volume
+					<p class="range-field">
+						<input type="range" id="amplitude" min="0" max="100" value="100"/>
+					</p>
+				</label>
+				<label>	
+					Afinação			
+					<p class="range-field">
+						<input type="range" id="pitch" min="0" max="100" value="60"/>
+					</p>
+				</label>
+				<label>	
+					Velocidade			
+					<p class="range-field">
+						<input type="range" id="speed" min="0" max="300" value="160" />
+					</p>
+				</label>
+                <label hidden> <!-- Still working on it -->
+                    Precisão mínima de detecção
+                    <p class="range-field">
+                        <input type="range" id="detection_accuracy" min="1" max="10" value="7"/>
+                    </p>
+                </label>
+			</form>
 		</div>
 		
 		<div class="modal-footer">
-			<!-- adicionar 'modal-close' na classe -->
-		  <a href="#!" class="modal-action waves-effect modal-close waves-green btn-flat " id="aplicar" >Aplicar</a>
-		  <a href="#!" class="modal-action waves-effect modal-close waves-red btn-flat " id="cancelar" >Cancelar</a>
+		  <a href="#" class="modal-action waves-effect modal-close waves-green btn-flat " id="aplicar" >Aplicar</a>
+		  <a href="#" class="modal-action waves-effect modal-close waves-red btn-flat " id="cancelar" >Cancelar</a>
+          <a href="#" class="modal-action waves-effect waves-green btn-flat" id="configuracao_padrao" >Retornar ao padrão</a>
 		</div>
 	  </div>
 	<!-- Modal end -->
