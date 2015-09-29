@@ -2,7 +2,13 @@
 
 __Sistema de visão computacional assistiva para dispositivos móveis desenvolvido em HTML5__
 
-__Coordenador:__ <a href="http://lattes.cnpq.br/3995585094514614" target="_blank">Prof. Rafael José de Alencar Almeida</a>
+__Equipe__
+
+- <a href="http://lattes.cnpq.br/3995585094514614" target="_blank">Prof. Rafael José de Alencar Almeida</a> (Orientador)
+- <a href="http://lattes.cnpq.br/6889636037391593" target="_blank">Prof. Marco de Moura Gromato</a> (Co-orientador)
+- <a href="http://lattes.cnpq.br/4440732351819773" target="_blank">Valéria Bergamini Leite</a> (Consultora)
+- <a href="http://lattes.cnpq.br/9414157397579991" target="_blank">Richardson William Tobias Rosa</a> (Aluno bolsista) 
+
 
 - Projeto finalista da __Semana Nacional de Ciência e Tecnologia 2014__ do Câmpus Barbacena.
 
