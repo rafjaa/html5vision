@@ -14,7 +14,7 @@ __Desenvolvimento__
 
 - Projeto finalista da __Semana Nacional de Ciência e Tecnologia 2014__ do Câmpus Barbacena.
 
-- Em desenvolvimento no IF Sudeste MG por meio do projeto de extensão "Aplicativo móvel assistivo para deficientes visuais utilizando Visão Computacional para detecção e localização de objetos", edital 20/2015 (Projetos de Extensão de Nível Superior).
+- Em desenvolvimento no IF Sudeste MG por meio do projeto de extensão __"Aplicativo móvel assistivo para deficientes visuais utilizando Visão Computacional para detecção e localização de objetos"__, edital 20/2015 (Projetos de Extensão de Nível Superior).
 
 
 ### Diagrama de funcionamento do aplicativo
