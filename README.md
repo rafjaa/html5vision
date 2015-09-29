@@ -1,6 +1,6 @@
 # HTML5Vision
 
-__Sistema de visão computacional assistiva para dispositivos móveis desenvolvido em HTML5__
+_Sistema de visão computacional assistiva para dispositivos móveis desenvolvido em HTML5_
 
 __Equipe__
 
@@ -10,9 +10,12 @@ __Equipe__
 - <a href="http://lattes.cnpq.br/9414157397579991" target="_blank">Richardson William Tobias Rosa</a> (Aluno bolsista) 
 
 
+__Desenvolvimento__
+
 - Projeto finalista da __Semana Nacional de Ciência e Tecnologia 2014__ do Câmpus Barbacena.
 
 - Em desenvolvimento no IF Sudeste MG por meio do projeto de extensão "Aplicativo móvel assistivo para deficientes visuais utilizando Visão Computacional para detecção e localização de objetos", edital 20/2015 (Projetos de Extensão de Nível Superior).
+
 
 ### Diagrama de funcionamento do aplicativo
 
