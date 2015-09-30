@@ -6,7 +6,7 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
 (function($) {
 	
 	var detect = function(options, callback, detectorFn) {
-		var $this = $(this),
+    var $this = $(this),
 		data = $this.data("objectdetect");
 	
 		if (!data) {

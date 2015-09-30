@@ -167,92 +167,53 @@ $(document).ready(function(){
         MediaStreamTrack.getSources(gotSources);
     }                
     
-    
+    var detector;
     play = function(){
         compatibility.requestAnimationFrame(play);
+        if (video.paused) video.play();
         
-        if (video.paused){
-            video.play();
-        }
+        if(video.readyState !== video.HAVE_ENOUGH_DATA && video.videoWidth <= 0)
+            return;
         
-        if(video.readyState === video.HAVE_ENOUGH_DATA){
-            canvas.hidden = true;
-            video.hidden = false;
-                        
-            // Divide a tela em três partes
-            tam_parte_tela = video.videoWidth / 3;
-            if(!pausado && !reproduzindo_audio){
-                $(video).objectdetect('all', {classifier: objectdetect.frontalface}, function(coords){
-                    
-                    if(coords.length){
-                    
-                        detectados = {'esq': 0, 'meio': 0, 'dir': 0};
-                        var achou = false;
-                        
-                        for(i in coords){
-                        
-                            if(coords[i][4] < PRECISAO_MINIMA_DETECCAO){
-                                continue;
-                            }
-                            
-                            achou = true;
-                            
-                            var rosto = coords[i];
-
-                            // Posição do rosto na tela
-                            if(rosto[0] + (rosto[2] / 2) >= tam_parte_tela * 2){
-                                detectados['dir'] += 1;
-                            } else if(rosto[0] + (rosto[2] / 2) >= tam_parte_tela){
-                                detectados['meio'] += 1;
-                            } else{
-                                detectados['esq'] += 1;
-                            }
-                            
-                            //console.log(' - Rosto ' + i + ' ' + rosto[4] + '%');                                    
-                            
-                            video.hidden = true;
-                            canvas.hidden = false;
-                            canvas.width = video.videoWidth;
-                            canvas.height = video.videoHeight;
-                            ctx.drawImage(video, 0, 0);
-                            
-                            ctx.strokeStyle = 'rgba(255,0,0,1)';
-                            ctx.lineWidth = '4';
-                            ctx.strokeRect(rosto[0], rosto[1], rosto[2], rosto[3]);
-
-                        }
-                        
-                        if(achou){
-                            var msg = '';
-                        
-                            if(detectados['esq']){
-                                msg += detectados['esq'] + ' pessoa' + (detectados['esq'] == 1 ? '' : 's') + ' à esquerda';
-                            }
-                            
-                            if(detectados['meio']){
-                                if(msg.length)
-                                    msg += ' e ';
-                                msg += detectados['meio'] + ' pessoa' + (detectados['meio'] == 1 ? '' : 's') + ' à frente';
-                            }
-                            
-                            if(detectados['dir']){
-                                if(msg.length)
-                                    msg += ' e ';
-                                msg += detectados['dir'] + ' pessoa' + (detectados['dir'] == 1 ? '' : 's') + ' à direita';
-                            }
-                            
-                            $('#icone_audio').show();
-                            txt_audio.innerHTML = msg + '.';
-
-							// Reproduz o aúdio
-							if(!reproduzindo_audio){
-								reproduzindo_audio = true;
-                                meSpeak.speak(msg, parametros_audio, callback_audio);
-							}
-                        }
-                    }
-                });
-            }
+        canvas.hidden = true;
+        video.hidden = false;
+        
+        /* Preparando o detector com as dimensões de vídeo: */
+        if (!detector) {
+            var width = ~~(80 * video.videoWidth / video.videoHeight);
+            var height = 80 ;
+            detector = new objectdetect.detector(width, height, 1.1, objectdetect.simbolo_acessibilidade);
         }
-    }                
+
+        if(pausado && reproduzindo_audio) return;
+
+        var coords = detector.detect(video,1);
+        if(coords.length == 0) return;
+
+        for(i in coords){
+            
+            if(coords[i][4] < PRECISAO_MINIMA_DETECCAO)
+                continue;
+            
+            var obj = coords[i];
+
+            video.hidden = true;
+            canvas.hidden = false;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+
+            ctx.strokeStyle = 'rgba(255,0,0,1)';
+            ctx.lineWidth = '4';
+            
+            //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
+            obj[0] *= video.videoWidth / detector.canvas.width;
+            obj[1] *= video.videoHeight / detector.canvas.height;
+            obj[2] *= video.videoWidth / detector.canvas.width;
+			obj[3] *= video.videoHeight / detector.canvas.height;
+            
+            ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
+            
+        }//for      
+    }//function()                
 });
