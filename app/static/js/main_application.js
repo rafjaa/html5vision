@@ -169,6 +169,7 @@ $(document).ready(function(){
     
     var detector;
     play = function(){
+        if(pausado && reproduzindo_audio) return;
         compatibility.requestAnimationFrame(play);
         if (video.paused) video.play();
         
@@ -185,35 +186,26 @@ $(document).ready(function(){
             detector = new objectdetect.detector(width, height, 1.1, objectdetect.simbolo_acessibilidade);
         }
 
-        if(pausado && reproduzindo_audio) return;
-
         var coords = detector.detect(video,1);
         if(coords.length == 0) return;
+        if(coords[0][4] < PRECISAO_MINIMA_DETECCAO) return;
 
-        for(i in coords){
-            
-            if(coords[i][4] < PRECISAO_MINIMA_DETECCAO)
-                continue;
-            
-            var obj = coords[i];
+        var obj = coords[0];
 
-            video.hidden = true;
-            canvas.hidden = false;
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
+        video.hidden = true;
+        canvas.hidden = false;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
+        obj[0] *= video.videoWidth / detector.canvas.width;
+        obj[1] *= video.videoHeight / detector.canvas.height;
+        obj[2] *= video.videoWidth / detector.canvas.width;
+        obj[3] *= video.videoHeight / detector.canvas.height;
 
-            ctx.strokeStyle = 'rgba(255,0,0,1)';
-            ctx.lineWidth = '4';
-            
-            //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
-            obj[0] *= video.videoWidth / detector.canvas.width;
-            obj[1] *= video.videoHeight / detector.canvas.height;
-            obj[2] *= video.videoWidth / detector.canvas.width;
-			obj[3] *= video.videoHeight / detector.canvas.height;
-            
-            ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
-            
-        }//for      
+        ctx.drawImage(video, 0, 0);
+        ctx.strokeStyle = 'rgba(255,0,0,1)';
+        ctx.lineWidth = '4';
+        ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
     }//function()                
 });
