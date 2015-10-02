@@ -223,5 +223,5 @@ $(document).ready(function(){
                 meSpeak.speak(haar_cascade[i]['descricao'],parametros_audio,callback_audio);
             }
         }//for
-    }//function()                
+    }//function()          
 });
