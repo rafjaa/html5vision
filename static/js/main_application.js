@@ -169,11 +169,10 @@ $(document).ready(function(){
     }                
     
     var detector = [];
-    var haar_cascade = [objectdetect.frontalface,objectdetect.simbolo_acessibilidade];
-    var msgs = {
-        0: 'Pessoa a frente.',
-        1: 'Placa do simbolo internacional de acesso a frente.'
-    };
+    var haar_cascade = [
+            {'classifier':objectdetect.frontalface,'descricao':'Pessoa'},
+            {'classifier':objectdetect.simbolo_acessibilidade,'descricao':'Símbolo acessibilidade'}
+    ];
     
     play = function(){
         if(pausado && reproduzindo_audio) return;
@@ -186,18 +185,18 @@ $(document).ready(function(){
         canvas.hidden = true;
         video.hidden = false;
         
-        var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
+         var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
+     for(i in haar_cascade){
+         if(!detector[i])
+            detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]['classifier']);
+    }//for
         
-        for(var i=0;i<haar_cascade.length;i++){
-            if(!detector[i])
-                detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]);
-        }//for
-        
-        for(var i=0;i<haar_cascade.length;i++){
+        for(i in haar_cascade){
             var coords = detector[i].detect(video,1);
-            if(coords.length == 0) continue;
-            if(coords[0][4] < PRECISAO_MINIMA_DETECCAO) continue;
-            
+            if(coords.length == 0) 
+                continue;
+            if(coords[0][4] < PRECISAO_MINIMA_DETECCAO) 
+                continue;
             
             var obj = coords[0];
 
@@ -218,10 +217,10 @@ $(document).ready(function(){
             ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
         
             $("#icone-audio").show();
-            txt_audio.innerHTML = msgs[i];
+            txt_audio.innerHTML = haar_cascade[i]['descricao'];
             if(!reproduzindo_audio){ 
                 reproduzindo_audio = true;
-                meSpeak.speak(msgs[i],parametros_audio,callback_audio);
+                meSpeak.speak(haar_cascade[i]['descricao'],parametros_audio,callback_audio);
             }
         }//for
     }//function()                
