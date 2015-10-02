@@ -53,6 +53,7 @@ $(document).ready(function(){
             reproduzindo_audio = false;
             $('#icone_audio').hide();
         }
+		
 
         if(!pausado)
             txt_audio.innerHTML = 'Analisando ambiente...';
@@ -167,7 +168,13 @@ $(document).ready(function(){
         MediaStreamTrack.getSources(gotSources);
     }                
     
-    var detector;
+    var detector = [];
+    var haar_cascade = [objectdetect.frontalface,objectdetect.simbolo_acessibilidade];
+    var msgs = {
+        0: 'Pessoa a frente.',
+        1: 'Placa do simbolo internacional de acesso a frente.'
+    };
+    
     play = function(){
         if(pausado && reproduzindo_audio) return;
         compatibility.requestAnimationFrame(play);
@@ -179,33 +186,43 @@ $(document).ready(function(){
         canvas.hidden = true;
         video.hidden = false;
         
-        /* Preparando o detector com as dimensões de vídeo: */
-        if (!detector) {
-            var width = ~~(80 * video.videoWidth / video.videoHeight);
-            var height = 80 ;
-            detector = new objectdetect.detector(width, height, 1.1, objectdetect.simbolo_acessibilidade);
-        }
-
-        var coords = detector.detect(video,1);
-        if(coords.length == 0) return;
-        if(coords[0][4] < PRECISAO_MINIMA_DETECCAO) return;
-
-        var obj = coords[0];
-
-        video.hidden = true;
-        canvas.hidden = false;
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
         
-        //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
-        obj[0] *= video.videoWidth / detector.canvas.width;
-        obj[1] *= video.videoHeight / detector.canvas.height;
-        obj[2] *= video.videoWidth / detector.canvas.width;
-        obj[3] *= video.videoHeight / detector.canvas.height;
+        for(var i=0;i<haar_cascade.length;i++){
+            if(!detector[i])
+                detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]);
+        }//for
+        
+        for(var i=0;i<haar_cascade.length;i++){
+            var coords = detector[i].detect(video,1);
+            if(coords.length == 0) continue;
+            if(coords[0][4] < PRECISAO_MINIMA_DETECCAO) continue;
+            
+            
+            var obj = coords[0];
 
-        ctx.drawImage(video, 0, 0);
-        ctx.strokeStyle = 'rgba(255,0,0,1)';
-        ctx.lineWidth = '4';
-        ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
+            video.hidden = true;
+            canvas.hidden = false;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        
+            //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
+            obj[0] *= video.videoWidth / detector[i].canvas.width;
+            obj[1] *= video.videoHeight / detector[i].canvas.height;
+            obj[2] *= video.videoWidth / detector[i].canvas.width;
+            obj[3] *= video.videoHeight / detector[i].canvas.height;
+
+            ctx.drawImage(video, 0, 0);
+            ctx.strokeStyle = 'rgba(255,0,0,1)';
+            ctx.lineWidth = '4';
+            ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
+        
+            $("#icone-audio").show();
+            txt_audio.innerHTML = msgs[i];
+            if(!reproduzindo_audio){ 
+                reproduzindo_audio = true;
+                meSpeak.speak(msgs[i],parametros_audio,callback_audio);
+            }
+        }//for
     }//function()                
 });
