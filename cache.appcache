@@ -1,0 +1,21 @@
+CACHE MANIFEST
+#  V1 13/10/2015
+#Mínima quantidade de arquivos necessários para o funcionamento do aplicativo.
+
+static/img/audio.svg
+materialize/font/roboto/Roboto-Regular.woff2
+static/icons/material_icons.woff2
+materialize/css/materialize.min.css
+static/css/style.css
+
+
+static/js/compatibility.js
+static/js/objectdetect.js
+static/js/objectdetect.classifiers.js
+static/js/jquery.js
+mespeak/mespeak.js
+materialize/js/materialize.min.js
+static/js/main_application.js
+
+mespeak/mespeak_config.json
+mespeak/voices/pt.json
