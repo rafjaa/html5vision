@@ -175,15 +175,16 @@ $(document).ready(function(){
     ];
     
     play = function(){
-        if(pausado && reproduzindo_audio) return;
         compatibility.requestAnimationFrame(play);
+        
         if (video.paused) video.play();
         
-        if(video.readyState !== video.HAVE_ENOUGH_DATA && video.videoWidth <= 0)
+        if(video.readyState !== video.HAVE_ENOUGH_DATA)
             return;
-        
         canvas.hidden = true;
         video.hidden = false;
+            
+        if(pausado) return;
         
          var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
      for(i in haar_cascade){
