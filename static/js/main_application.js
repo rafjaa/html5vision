@@ -177,15 +177,22 @@ $(document).ready(function(){
     play = function(){
         compatibility.requestAnimationFrame(play);
         
-        if (video.paused) video.play();
-        
+        if(pausado){
+            if(!video.paused){
+                video.pause();
+            }
+            return;
+        }else{
+            if (video.paused){ 
+                video.play();
+            }
+        }
+
         if(video.readyState !== video.HAVE_ENOUGH_DATA)
             return;
         canvas.hidden = true;
         video.hidden = false;
-            
-        if(pausado) return;
-        
+                
          var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
      for(i in haar_cascade){
          if(!detector[i])
@@ -221,6 +228,7 @@ $(document).ready(function(){
             txt_audio.innerHTML = haar_cascade[i]['descricao'];
             if(!reproduzindo_audio){ 
                 reproduzindo_audio = true;
+                meSpeak.stop();
                 meSpeak.speak(haar_cascade[i]['descricao'],parametros_audio,callback_audio);
             }
         }//for
