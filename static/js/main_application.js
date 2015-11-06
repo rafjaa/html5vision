@@ -173,10 +173,10 @@ $(document).ready(function(){
             {'classifier':objectdetect.frontalface,'descricao':'Pessoa'},
             {'classifier':objectdetect.simbolo_acessibilidade,'descricao':'Símbolo acessibilidade'}
     ];
+    var ultimo_obj_detectado = ''; 
     
     play = function(){
         compatibility.requestAnimationFrame(play);
-        
         if(pausado){
             if(!video.paused){
                 video.pause();
@@ -192,14 +192,27 @@ $(document).ready(function(){
             return;
         canvas.hidden = true;
         video.hidden = false;
-                
-         var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
-     for(i in haar_cascade){
-         if(!detector[i])
-            detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]['classifier']);
-    }//for
+
+        var dados  = ''; 
+        ctx.drawImage(video, 0, 0);
+        try{
+            var dados = qrcode.decode();
+            ultimo_obj_detectado = dados; 
+            console.log('Codigo QR: ' +dados );
+        }catch(e){
+           console.log('excecao: ' + e);
+        }
+        
+        var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
+        for(i in haar_cascade){
+            if(!detector[i])
+                detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]['classifier']);
+        }//for
         
         for(i in haar_cascade){
+            if(typeof(detector[i]) == 'function') continue;
+            
+            
             var coords = detector[i].detect(video,1);
             if(coords.length == 0) 
                 continue;
@@ -225,12 +238,16 @@ $(document).ready(function(){
             ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
         
             $("#icone-audio").show();
-            txt_audio.innerHTML = haar_cascade[i]['descricao'];
-            if(!reproduzindo_audio){ 
+            var descricao = haar_cascade[i]['descricao']; 
+            txt_audio.innerHTML = descricao;
+            if(!reproduzindo_audio && descricao != ultimo_obj_detectado){ 
                 reproduzindo_audio = true;
                 meSpeak.stop();
                 meSpeak.speak(haar_cascade[i]['descricao'],parametros_audio,callback_audio);
+                ultimo_obj_detectado = descricao; 
             }
         }//for
     }//function()          
+    
+  
 });
