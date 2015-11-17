@@ -16,6 +16,8 @@ static/js/jquery.js
 mespeak/mespeak.js
 materialize/js/materialize.min.js
 static/js/main_application.js
+static/js/jsqrcode-combined.min.js
+
 
 mespeak/mespeak_config.json
 mespeak/voices/pt.json

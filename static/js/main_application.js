@@ -193,21 +193,26 @@ $(document).ready(function(){
         canvas.hidden = true;
         video.hidden = false;
 
-        var dados  = ''; 
-        ctx.drawImage(video, 0, 0);
-        try{
-            var dados = qrcode.decode();
-            ultimo_obj_detectado = dados; 
-            console.log('Codigo QR: ' +dados );
-        }catch(e){
-           console.log('excecao: ' + e);
+        if(reproduzindo_audio == false){
+            var dados  = ''; 
+            ctx.drawImage(video, 0, 0);
+            try{
+                var dados = qrcode.decode();
+                if(ultimo_obj_detectado != dados){
+                    ultimo_obj_detectado = dados; 
+                    reproduzindo_audio = true;
+                    meSpeak.speak(dados, parametros_audio,callback_audio);
+                }
+            }catch(e){
+               //console.log('excecao: ' + e);
+            }
         }
         
         var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
         for(i in haar_cascade){
             if(!detector[i])
                 detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]['classifier']);
-        }//for
+        }//for	
         
         for(i in haar_cascade){
             if(typeof(detector[i]) == 'function') continue;
