@@ -15,6 +15,7 @@ static/js/objectdetect.classifiers.js
 static/js/jquery.js
 mespeak/mespeak.js
 materialize/js/materialize.min.js
+static/js/jsqrcode-combined.min.js
 static/js/main_application.js
 static/js/jsqrcode-combined.min.js
 
