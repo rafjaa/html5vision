@@ -174,9 +174,11 @@ $(document).ready(function(){
             {'classifier':objectdetect.simbolo_acessibilidade,'descricao':'Símbolo acessibilidade'}
     ];
     var ultimo_obj_detectado = ''; 
+    var deteccao_pausada = false;
     
     play = function(){
         compatibility.requestAnimationFrame(play);
+        
         if(pausado){
             if(!video.paused){
                 video.pause();
@@ -187,22 +189,28 @@ $(document).ready(function(){
                 video.play();
             }
         }
-
+        
         if(video.readyState !== video.HAVE_ENOUGH_DATA)
             return;
         canvas.hidden = true;
         video.hidden = false;
 
+        if(deteccao_pausada){
+            return;
+        }
+        
         if(reproduzindo_audio == false){
             var dados  = ''; 
             ctx.drawImage(video, 0, 0);
+
             try{
                 var dados = qrcode.decode();
-                if(ultimo_obj_detectado != dados){
-                    ultimo_obj_detectado = dados; 
-                    reproduzindo_audio = true;
-                    meSpeak.speak(dados, parametros_audio,callback_audio);
-                }
+                reproduzindo_audio = true;
+                meSpeak.speak(dados, parametros_audio,callback_audio);
+                deteccao_pausada = true;
+                setTimeout(function(){
+                    deteccao_pausada = false;
+                },3000);
             }catch(e){
                //console.log('excecao: ' + e);
             }
@@ -245,11 +253,15 @@ $(document).ready(function(){
             $("#icone-audio").show();
             var descricao = haar_cascade[i]['descricao']; 
             txt_audio.innerHTML = descricao;
-            if(!reproduzindo_audio && descricao != ultimo_obj_detectado){ 
+            if(!reproduzindo_audio){ 
                 reproduzindo_audio = true;
                 meSpeak.stop();
                 meSpeak.speak(haar_cascade[i]['descricao'],parametros_audio,callback_audio);
                 ultimo_obj_detectado = descricao; 
+                deteccao_pausada = true;
+                setTimeout(function(){
+                    deteccao_pausada = false;   
+                },3000);
             }
         }//for
     }//function()          
