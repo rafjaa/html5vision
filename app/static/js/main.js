@@ -71,6 +71,8 @@ $(document).ready(function(){
         ready: inicia_modal()
     });   
 	
+     $(".button-collapse").sideNav();
+    
     $('#cancelar').click(function(){
 		if(typeof parametros_audio != "undefined" && typeof parametros_audio !== typeof {}) 
             parametros_audio = JSON.parse(parametros_audio);
