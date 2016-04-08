@@ -96,24 +96,24 @@ a:link{
 
 div#corpo{
   position:relative;
+  /*overflow:hidden;*/
 }
 video,canvas{
   position:absolute;
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  
-
+ /* margin-left: -45%;*/
 }
 @media only screen and (orientation: portrait){
   video,canvas{
-    width:100%;
-    height: inherit;
+    height:100%;
+    width: inherit;
   }    
 }
 @media only screen and (orientation: landscape){
   video,canvas{
-    height:100%;
-    width:inherit;
+    width:100%;
+    height:inherit;
   }    
 }
