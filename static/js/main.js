@@ -16,15 +16,15 @@ $(document).ready(function(){
 		parametros_audio = parametros_audio_padrao; // Without WebStorage support
 		
     var reproduzindo_audio = false;
-    var txt_audio = document.getElementById('txt_audio');
+  //  var txt_audio = document.getElementById('txt_audio');
     
 	meSpeak.loadConfig('mespeak/mespeak_config.json');
 	meSpeak.loadVoice('mespeak/voices/pt.json', function(){
         // Mensagem de inicialização
         if(!reproduzindo_audio){
             reproduzindo_audio = true;
-            $('#icone_audio').show();
-            txt_audio.innerHTML = 'Aplicativo inicializado. Toque na tela para pausar.';
+           // $('#icone_audio').show();
+           // txt_audio.innerHTML = 'Aplicativo inicializado. Toque na tela para pausar.';
             meSpeak.speak('Aplicativo inicializado. Toque na tela para pausar.', parametros_audio, callback_audio);
         }
     });
@@ -34,14 +34,14 @@ $(document).ready(function(){
 
     $('#corpo').click(function(){
         reproduzindo_audio = true;
-        $('#icone_audio').show();
+        //$('#icone_audio').show();
         if(!pausado){
-            txt_audio.innerHTML = 'Pausado. Toque na tela para continuar.';
+           // txt_audio.innerHTML = 'Pausado. Toque na tela para continuar.';
             meSpeak.stop();
             meSpeak.speak('Pausado. Toque na tela para continuar.', parametros_audio, callback_audio);
             pausado = true;
         }else{
-            txt_audio.innerHTML = 'Executando. Toque na tela para pausar.';
+           // txt_audio.innerHTML = 'Executando. Toque na tela para pausar.';
             meSpeak.stop();
             meSpeak.speak('Executando. Toque a tela para pausar.', parametros_audio, callback_audio);
             pausado = false;
@@ -51,10 +51,10 @@ $(document).ready(function(){
     var callback_audio = function(finalizado){
         if(finalizado){
             reproduzindo_audio = false;
-            $('#icone_audio').hide();
+           // $('#icone_audio').hide();
         }
 		
-
+/*
         if(!pausado)
             txt_audio.innerHTML = 'Analisando ambiente...';
         else
@@ -62,6 +62,7 @@ $(document).ready(function(){
             
         if(video.src == '')
             txt_audio.innerHTML = 'Acessando câmera...';
+    */
     }
 
     // Modal configuration 
@@ -150,7 +151,7 @@ $(document).ready(function(){
                 }catch(error){
                     video.src = stream;
                 }
-                txt_audio.innerHTML = 'Analisando ambiente...';
+             //   txt_audio.innerHTML = 'Analisando ambiente...';
                 compatibility.requestAnimationFrame(play);
 
             }, function(error){
@@ -251,10 +252,18 @@ $(document).ready(function(){
             ctx.strokeStyle = 'rgba(255,0,0,1)';
             ctx.lineWidth = '4';
             ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
+
+            var descricao = haar_cascade[i]['descricao'];
+            ctx.font = '25px Roboto'; 
+            ctx.fillStyle = 'rgb(255,0,0)';
+            
+            ctx.shadowColor = 'black';
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.fillText(descricao, obj[0], obj[1] + obj[3] + 25);
         
-            $("#icone-audio").show();
-            var descricao = haar_cascade[i]['descricao']; 
-            txt_audio.innerHTML = descricao;
+            
+         //   txt_audio.innerHTML = descricao;
             if(!reproduzindo_audio){ 
                 reproduzindo_audio = true;
                 meSpeak.stop();
