@@ -53,74 +53,9 @@ $(document).ready(function(){
             reproduzindo_audio = false;
            // $('#icone_audio').hide();
         }
-		
-/*
-        if(!pausado)
-            txt_audio.innerHTML = 'Analisando ambiente...';
-        else
-            txt_audio.innerHTML = 'Detecção pausada.';
-            
-        if(video.src == '')
-            txt_audio.innerHTML = 'Acessando câmera...';
-    */
     }
 
-    // Modal configuration 
-   //Inicializa a ação da janela modal.
-    $('.modal-trigger').leanModal({
-        dismissible:false,
-        ready: inicia_modal()
-    });   
-	
-     $(".button-collapse").sideNav();
     
-    $('#cancelar').click(function(){
-		if(typeof parametros_audio != "undefined" && typeof parametros_audio !== typeof {}) 
-            parametros_audio = JSON.parse(parametros_audio);
-        
-		$('#speed').val(parametros_audio.speed);
-		$('#pitch').val(parametros_audio.pitch);
-		$('#amplitude').val(parametros_audio.amplitude);
-        $('#detection_accuracy').val(PRECISAO_MINIMA_DETECCAO);
-    });
-
-   $('#aplicar').click(function (){
-        if(typeof parametros_audio != "undefined" && typeof parametros_audio !== typeof {})
-            parametros_audio = JSON.parse(parametros_audio);
-        
-		parametros_audio.speed = $('#speed').val();
-		parametros_audio.pitch = $('#pitch').val();
-		parametros_audio.amplitude = $('#amplitude').val();
-		PRECISAO_MINIMA_DETECCAO = parseInt($('#detection_accuracy').val(),10);
-		
-		if(typeof(Storage) !== undefined)
-			localStorage['parametros_audio'] = JSON.stringify(parametros_audio);
-		else
-			alert('error');
-    });
-    
-    $('#configuracao_padrao').click(function(){
-       if(typeof parametros_audio != "undefined" && typeof parametros_audio !== typeof {})
-            parametros_audio = JSON.parse(parametros_audio);
-		
-		$('#speed').val(parametros_audio_padrao.speed);
-		$('#pitch').val(parametros_audio_padrao.pitch);
-		$('#amplitude').val(parametros_audio_padrao.amplitude);
-        $('#detection_accuracy').val(PRECISAO_MINIMA_DETECCAO_PADRAO);
-    });
-   // Modal configuration
-    
-    //Inicia os valores do modal com os contidos no cache. Chamado todas as vezes em que a janela modal é aberta.
-   function inicia_modal(){
-    if(typeof parametros_audio != "undefined" && typeof parametros_audio !== typeof {})
-        parametros_audio = JSON.parse(parametros_audio);
-       
-    $('#speed').val(parametros_audio.speed);
-    $('#pitch').val(parametros_audio.pitch);
-    $('#amplitude').val(parametros_audio.amplitude);
-    $('#detection_accuracy').val(PRECISAO_MINIMA_DETECCAO);
-   }//inicia_modal
-
     var PRECISAO_MINIMA_DETECCAO = 7;
     var PRECISAO_MINIMA_DETECCAO_PADRAO = 7;
    
@@ -128,6 +63,22 @@ $(document).ready(function(){
     canvas = document.getElementById('canvas');
     canvas.hidden = true;
     ctx = canvas.getContext( '2d' );
+    ctx.scale(.3,.3);
+   
+    $('#fullscreen-btn').click(function(){
+        if (screenfull.enabled){
+            screenfull.toggle();
+        }
+        var fullscreen_toggle = $('#fullscreen-toggle');
+        var txt = fullscreen_toggle.html();
+
+        if (txt == 'fullscreen_exit')
+            fullscreen_toggle.html('fullscreen');
+        else
+            fullscreen_toggle.html('fullscreen_exit');
+    });
+
+
 
     var gotSources = function(sourceInfos){
         id_source = null;

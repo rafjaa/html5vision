@@ -2,118 +2,88 @@
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: local('Material Icons'), local('MaterialIcons-Regular'), url('../../static/icons/material_icons.woff2') format('woff2');
+  src: local('Material Icons'), 
+       local('MaterialIcons-Regular'),
+       url('../../static/icons/material_icons.woff2') format('woff2');
 }
 
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
+  font-size: 24px;  /* Preferred icon size */
   display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
   word-wrap: normal;
-  -webkit-font-feature-settings: 'liga';
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
   -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
 }
 
 *, *:before, *:after{
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
 body{
     font-family: 'Roboto', sans-serif;
     text-align: center;
- 
-    width: 100vw;
-    display: flex;
-    height: 100vh;
-    flex-direction: column;
 }
 
-.titulo{
-  font-size:0.5em; /*padrao: 29.4px;*/
-}
-nav .nav-wrapper i {
-  font-size: 1.5rem; /*valor padrao: 2rem */
-}
-main{
-  flex: 1 0 auto;
-  background-color: #f6f6f6;
-  display:flex;
-  flex-direction: column;
-}
-div#corpo{
-  flex: 1 0 auto;
-}
-img{
-    width: 15px;
-    height: 15px;
-    margin-right: 5px;
-    padding-top: 3px;
+header{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height: 10%;
+  z-index:1;
 }
 
-canvas, video{
-    box-shadow: 5px 5px 1px #ccc;
+body,#corpo{
+  width:100vw;
+  height:100vh;
 }
-
-h1{
-    font-size: 20px;
-    font-weight: normal;
-    color: #fff;
-    text-shadow: 1px 1px #999;
-    background-color: #92c46d;
-    border-bottom: solid 1px #ccc;
-    padding: 10px;
+body{
+  overflow:hidden;
 }
-
-#status{
-    font-size: 13px;
-    background-color: #fff;
-    padding: 6px;
-    border-bottom: solid 1px #ccc;
-    text-shadow: 1px 1px #ddd;
-}
-
-footer{
-    font-size: 11px;
-    color: #333;
-    text-shadow: 1px 1px #eee;
-    padding: 15px 0;
-}
-
-a:link{
-    font-weight: bold;
-    text-decoration: none;
-}
-
-/* O vídeo sempre estará no centro, a pagina nao terá scroll.
- Com este css, a div#corpo não precisa ser flex container.
- Adicionar uma resolução máxima para o width 100% na media query.*/
-
-div#corpo{
-  position:relative;
-  /*overflow:hidden;*/
-}
-video,canvas{
+#video,#canvas{
   position:absolute;
   top:50%;
   left:50%;
-  transform:translate(-50%,-50%);
- /* margin-left: -45%;*/
+  width:auto;
+  height:auto;
+  min-width: 100%;
+  min-height:100%;
+  -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
-@media only screen and (orientation: portrait){
-  video,canvas{
-    height:100%;
-    width: inherit;
-  }    
+
+li{
+  display:inline;
+  padding:1em;
 }
-@media only screen and (orientation: landscape){
-  video,canvas{
-    width:100%;
-    height:inherit;
-  }    
+.to-right{
+  float:right;
+}
+.to-left{
+  float:left;
+}
+.icons{
+  font-size:50px;
+  color:#fff;
 }

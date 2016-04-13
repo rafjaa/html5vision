@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html manifest="cache.appcache">
 <head>
 	<!-- Redireciona os usuários para a versão HTTPS do site -->
 	<script type="text/javascript">
@@ -12,46 +12,17 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 	<title>Visão Computacional Assistiva</title>
 	<link rel="canonical" href="https://rafjaa.github.io/html5vision"/>
-	<link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css" media="screen,projection"/>
 	<link rel="stylesheet" href="static/css/styles.css" />
 </head>
 
 <body>
 	<header>
-		<div id="modal1" class="modal modal-fixed-footer" >
-
-			<div class="modal-content">
-				<h4>Configurações</h4>
-				<form>
-					<label for="amplitude">Volume</label>
-					<p class="range-field">
-						<input type="range" id="amplitude" min="0" max="100" value="100"/>
-					</p>
-					
-					<label for="pitch">Afinação</label>			
-					<p class="range-field">
-						<input type="range" id="pitch" min="0" max="100" value="60"/>
-					</p>
-					
-					<label for="speed">Velocidade</label>
-					<p class="range-field">
-						<input type="range" id="speed" min="0" max="300" value="160" />
-					</p>
-					
-					<label hidden for="detection_accuracy">Precisão mínima de detecção</label>
-					<p class="range-field" hidden>
-						<input type="range" id="detection_accuracy" min="1" max="10" value="7"/>
-					</p>
-				</form>
-			</div>
-
-			<div class="modal-footer">
-				<a href="#" class="modal-action waves-effect modal-close waves-green btn-flat " id="aplicar" >Aplicar</a>
-				<a href="#" class="modal-action waves-effect modal-close waves-red btn-flat " id="cancelar" >Cancelar</a>
-				<a href="#" class="modal-action waves-effect waves-green btn-flat" id="configuracao_padrao" >Retornar ao padrão</a>
-			</div>
-		</div>
-
+		<nav>
+			<ul>
+				<li class="to-left"><a href="#"><i class="material-icons icons">settings</i></a></li>
+				<li class="to-right"><a href="#" id="fullscreen-btn"><i class="material-icons icons" id="fullscreen-toggle">fullscreen</i></a></li>
+			</ul>
+		</nav>
 	</header>
 
 	<main>
@@ -62,14 +33,14 @@
 
 	</main>
 			
+	<script src="static/js/screenfull.min.js"></script>
 	<script src="static/js/compatibility.js"></script>
 	<script src="static/js/objectdetect.js"></script>
 	<script src="static/js/objectdetect.classifiers.js"></script>
 	<script src="static/js/jquery.js"></script>
 	<script src="mespeak/mespeak.js"></script>
-
 	<script src="static/js/main.js"></script>
-	<script src="materialize/js/materialize.min.js"></script>
 	<script src="static/js/jsqrcode-combined.min.js"></script>
+
 </body>
 </html>
