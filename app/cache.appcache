@@ -1,24 +1,20 @@
 CACHE MANIFEST
-# Timestamp: 1458770942
-#Mínima quantidade de arquivos necessários para o funcionamento do aplicativo.
+# 13/04/2016 v1
 
-static/img/audio.svg
-materialize/font/roboto/Roboto-Regular.woff2
-static/icons/material_icons.woff2
 materialize/css/materialize.min.css
-static/css/style.css
+materialize/fonts/roboto/Roboto-Regular.woff2
+materialize/js/materialize.min.js
 
+mespeak/mespeak.js
+
+static/css/styles.css
 
 static/js/compatibility.js
-static/js/objectdetect.js
-static/js/objectdetect.classifiers.js
 static/js/jquery.js
-mespeak/mespeak.js
-materialize/js/materialize.min.js
 static/js/jsqrcode-combined.min.js
-static/js/main_application.js
-static/js/jsqrcode-combined.min.js
-
+static/js/main.js
+static/js/objectdetect.classifiers.js
+static/js/objectdetect.js
 
 mespeak/mespeak_config.json
 mespeak/voices/pt.json
