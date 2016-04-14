@@ -73,15 +73,26 @@ body{
     transform: translate(-50%, -50%);
 }
 
+ul{
+  text-align:center;
+}
 li{
   display:inline;
-  padding:1em;
+  widows: 33.33%;
 }
-.to-right{
+i{
+  padding: 12px;
+}
+.fullscreen{
   float:right;
+  text-align:right;
 }
-.to-left{
+.info{
+  
+}
+.config{
   float:left;
+  text-align:left;
 }
 .icons{
   font-size:50px;
