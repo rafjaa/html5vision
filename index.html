@@ -3,10 +3,8 @@
 <head>
 	<!-- Redireciona os usuários para a versão HTTPS do site -->
 	<script type="text/javascript">
-		if (window.location.protocol != "https:"){
-			window.location.protocol = "https";
-			window.location = 'https://rafjaa.github.io/html5vision';
-		}
+		if(window.location.protocol != 'https:')
+  			location.href = location.href.replace("http://", "https://");
 	</script>
 
 	<meta charset="utf-8" />
