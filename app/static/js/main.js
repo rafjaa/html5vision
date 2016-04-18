@@ -1,4 +1,42 @@
 $(document).ready(function(){
+
+    var divcheckboxes = $('#checkboxes');
+    for (var i =0;i< haar_cascade.length; i++){
+        //console.log(haar_cascade[i].descricao);
+        var novoinput = $('<input checked type="checkbox" name="objetos-detectados" id="' + 
+            haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
+            '">' + haar_cascade[i].descricao +'</label><br/>');
+
+        divcheckboxes.append(novoinput);
+    }
+
+
+    $('#config-btn').click(function(){
+        if($('#modal-config').hasClass('hidden-modal')){
+            $('#modal-config').removeClass('hidden-modal');
+            $('#overlay').removeClass('hidden');
+            $('#modal-config').addClass('visible');
+            $('#overlay').addClass('visible');
+
+            $( "#config-btn" ).fadeOut( 0.8, function() {
+                // Animation complete.
+            });
+            $( "#info-btn" ).fadeOut( 0.8, function() {
+                // Animation complete.
+            });
+            // TODO: trocar icone para 'close'
+            $( "#fullscreen-btn" ).fadeOut( 0.8, function() {
+                // Animation complete.
+            });
+
+        }else{
+            $('#modal-config').removeClass('visible');
+            $('#overlay').removeClass('visible');
+            $('#modal-config').addClass('hidden-modal');
+            $('#overlay').addClass('hidden');
+        }
+    });
+
     // Carrega e configura a API de áudio do cache, se possível(WebStorage API).
 	/*Parametros: variant: variação de características da voz, 
       speed: velocidade de fala, pitch: afinação, amplitude: volume*/
@@ -123,10 +161,7 @@ $(document).ready(function(){
     }                
     
     var detector = [];
-    var haar_cascade = [
-            {'classifier':objectdetect.frontalface,'descricao':'Pessoa'},
-            {'classifier':objectdetect.simbolo_acessibilidade,'descricao':'Símbolo acessibilidade'}
-    ];
+   
     var ultimo_obj_detectado = ''; 
     var deteccao_pausada = false;
     
@@ -226,7 +261,5 @@ $(document).ready(function(){
                 },3000);
             }
         }//for
-    }//function()          
-    
-  
+    }//function()
 });

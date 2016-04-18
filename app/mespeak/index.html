@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
   <title>meSpeak.js: Text-to-Speech on the Web</title>
+  <meta name="description" content="meSpeak.js (modulary enhanced speak.js) is a 100% client-side JavaScript text-to-speech library based on the speak.js project." />
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans&amp;subset=latin" rel="stylesheet" type="text/css" />
+  <link href="http://fonts.googleapis.com/css?family=Lato:300&amp;subset=latin" rel="stylesheet" type="text/css" />
+
   <script>
     // This demo is licensed under the GNU GPL.
   </script>
@@ -93,7 +97,7 @@
               s2.selectedIndex=i;
               meSpeak.loadVoice('voices/'+params.voice+'.json', function(success, message) {
                 if (success) {
-                  if (speakNow) speakNow();
+                  if (speakNow) setTimeout(speakNow, 10);
                 }
                 else {
                   if (window.console) console.log('Failed to load requested voice: '+message);
@@ -152,8 +156,52 @@
   </script>
 
 <style type="text/css">
-	body {max-width: 1000px; }
-	h3 { margin-top: 2em; }
+	html
+	{
+		margin: 0;
+		padding: 2em 1.5em 4.5em 1.5em;
+		background-color: #e2e3e4;
+	}
+	body
+	{
+		max-width: 900px;
+		padding: 2px 40px 60px 40px;
+		margin: 0 auto 0 auto;
+		background-color: #fafafb;
+		color: #111;
+		font-family: 'Open Sans',sans-serif;
+		font-size: 13px;
+		line-height: 19px;
+	}
+	h1,h2,h3
+	{
+		font-family: 'Lato',sans-serif;
+		font-weight: 300;
+	}
+	h1 {
+		font-size: 46px;
+		line-height: 46px;
+		color: #2681a7;
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+		padding: 0;
+	}
+	h2
+	{
+		font-size: 36px;
+		color: #111;
+		margin-top: 0;
+		margin-bottom: 1.5em;
+		clear: both;
+	}
+	h3
+	{
+		font-size: 24px;
+		color: #111;
+		margin-top: 2em;
+	}
+	h1 span.pict { font-size: 38px; color: #ccc; margin-left: 0.5em; letter-spacing: -2px; }
+	h3.about { font-size: 28px; }
 	form p
 	{
 		margin-top: 0.5em;
@@ -165,10 +213,11 @@
 		padding: 1em 0 1em 2em;
 		white-space: pre;
 		font-family: monospace;
-		line-height: 120%;
-		background-color: #f2f2f2;
+		line-height: 18px;
+		background-color: #f2f3f5;
+		color: #111;
 	}
-	p.codesample strong { color: #111; }
+	p.codesample strong { color: #222; }
 	hr.separator
 	{
 		margin-top: 2em;
@@ -192,8 +241,8 @@
 	dl.history dd
 	{
 		vertical-align: top;
-		margin-left: 3.5em;
-		margin-bottom: 0.3em;
+		margin-left: 4em;
+		margin-bottom: 0.4em;
 	}
 	table.opttable { margin-left: 2em; }
 	table.opttable td { white-space: nowrap; }
@@ -208,10 +257,13 @@
 		background-color: #eee;
 	}
 	p.history_codesample span.comment { color: #555; }
+	a { color: #006f9e; }
+	a:hover,a:focus { color: #2681a7; }
+	a:active { color: #cd360e; }
 </style>
 </head>
 <body>
-  <h1>meSpeak.js</h1>
+  <h1>meSpeak.js <span class="pict">(( &bull; ))</span></h1>
   <h2>Text-To-Speech on the Web</h2>
   <form id="speakData" onsubmit="meSpeak.speak(text.value, { amplitude: amplitude.value, wordgap: wordgap.value, pitch: pitch.value, speed: speed.value, variant: variant.options[variant.selectedIndex].value }); return false">
     <p><strong>Text:</strong> <input type="text" name="text" size=80 value="Never gonna give, you, up." />
@@ -281,14 +333,14 @@
   <p id="linkdisplay"></p>
   <hr class="separator" />
   <p><em>First things first: Where can I download this? &mdash; See the <a href="#download">download-link</a> below.</em></p>
-  <h3>About</h3>
+  <h3 class="about">About</h3>
   <p>
   	<strong>meSpeak.js</strong> (modulary enhanced speak.js) is a 100% client-side JavaScript text-to-speech library based on the <a href="http://syntensity.com/static/espeak.html" target="_blank">speak.js</a> project (see below).<br />
   	meSpeak.js adds support for Webkit and Safari and introduces loadable voice modules. Also there is no more need for an embedding HTML-element.<br />
   	Separating the code of the library from config-data and voice definitions should help future optimizations of the core part of <a href="http://syntensity.com/static/espeak.html" target="_blank">speak.js</a>.<br />
   	All separated data has been compressed to base64-encoded strings from the original binary files to save some bandwidth (compared to JS-arrays of raw 8-bit data).<br />
   	Browser requirements: Firefox, Chrome/Opera, Webkit, and Safari (MSIE11 is expected to be compliant).<br /><br />
-  	meSpeak.js 2011-2014 by Norbert Landsteiner, mass:werk &ndash; media environments; <a href="http://www.masswerk.at/mespeak/">http://www.masswerk.at/mespeak/</a><br /><br />
+  	meSpeak.js 2011-2015 by Norbert Landsteiner, mass:werk &ndash; media environments; <a href="http://www.masswerk.at/mespeak/">http://www.masswerk.at/mespeak/</a><br /><br />
   	<strong>Important Changes:</strong><br /><br />
   	<strong>v.1.1</strong> adds support for the <em>Web Audio API</em> (AudioContext), which is now the preferred option for playback with the HTMLAudioElement as a fall-back.<br />Thanks to the new method of playback meSpeak.js was tested successfully with iOS/Safari (iOS 6).<br />
   	Also starting with v.1.1 there is now an option to rather export the raw speech-data than playing the sound (see: options, &quot;rawdata&quot;).<br /><br />
@@ -299,7 +351,8 @@
   	<strong>v 1.9</strong> adds <tt>meSpeak.stop()</tt> in order to stop all sounds or one or more spefic sound(s).<br /><br />
   	<strong>v 1.9.3</strong> adds support for the complete Basic Latin and Latin-1 Supplement Unicode range (U+0000 .. U+00FF).<br /><br />
   	<strong>v 1.9.4</strong> meSpeak now recovers gracefully and transparently from any internal FS errors (which might show up at the 80th call to <tt>meSpeak.speak()</tt>).<br /><br />
-  	<strong>v 1.9.5</strong> Added <tt><a href="multipartExample.html">meSpeak.speakMultipart()</a></tt> in order to combine multiple voices.
+  	<strong>v 1.9.5</strong> Added <tt><a href="multipartExample.html">meSpeak.speakMultipart()</a></tt> in order to combine multiple voices.<br /><br />
+  	<strong>v 1.9.7.1</strong> <em>Important Upadate</em> &mdash; Fixes for changes in Web Audio API in Apple Safari 9.x (iOS and Mac OS X).
   </p>
   <p>Some <strong>real world examples</strong> (at masswerk.at):<br />
     &bull; Explore client-side speech I/O with <a href="http://www.masswerk.at/eliza/" target="_blank">E.L.I.Z.A. Talking</a><br />
@@ -632,9 +685,10 @@ Please note that you still need a user-interaction at the very beginning of the 
   <a name="download" id="download"></a>
   <h3>Source</h3>
   <p><strong>Download</strong> (all code under GPL): <a href="http://www.masswerk.at/mespeak/mespeak.zip">mespeak.zip</a><br />
-  (v.1.9.6, last update: 2014-02-11 13:30 GMT)</p>
+  (v.1.9.7.1, last update: 2015-10-07 13:00 GMT)</p>
   <h3>Version History</h3>
   <dl class="history">
+  <dt>v.1.9.7.1</dt><dd>Fix for Web Audio API changes in Apple Safari 9.x (Mac OS X and iOS, compare v.1.9.2).</dd>
   <dt>v.1.9.6</dt><dd>Minor internal changes.</dd>
   <dt>v.1.9.5</dt><dd>Added <tt>meSpeak.speakMultipart()</tt>.<br />Also, <tt>meSpeak.speak()</tt> and <tt>meSpeak.speakMultipart()</tt> won't fail on a missing voice any more: As soon as there is a default-voice loaded and set, the default-voice will be used instead.</dd>
   <dt>v.1.9.4.1</dt><dd>Fixed a bug in the error handling on missing voices.</dd>
@@ -737,7 +791,7 @@ function playSound(streamBuffer, callback) {
   <h3>About speak.js</h3>
   <p>
     <strong>speak.js</strong> is 100% clientside JavaScript. &quot;<a href="https://github.com/kripken/speak.js" target="_blank">speak.js</a>&quot; is a port of <a href="http://espeak.sourceforge.net/" target="_blank">eSpeak</a>, an open source speech synthesizer, which was compiled from C++ to JavaScript using <a href="http://emscripten.org" target="_blank">Emscripten</a>.<br />
-    The project page and source code for this demo can be found <a href="https://github.com/kripken/speak.js" target="_blank">here</a>.
+    The project page and source code for this demo can be found <a href="https://github.com/kripken/speak.js" target="_blank">here</a>.<br /><em>Note: There had been initially plans to merge this project with speak.js, but they somehow became stuck.</em>
   </p>
 
   <p>

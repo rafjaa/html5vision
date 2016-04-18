@@ -3,12 +3,15 @@
 <head>
 	<meta charset="utf-8" />
 	<title>meSpeak Flash Fallback</title>
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans&amp;subset=latin" rel="stylesheet" type="text/css" />
+	<link href="http://fonts.googleapis.com/css?family=Lato:300&amp;subset=latin" rel="stylesheet" type="text/css" />
+
   	<script type="text/javascript" src="../mespeak.js"></script>
 	<script type="text/javascript" src="flashFallback.js"></script>
 
 	<script type="text/javascript">
-		meSpeak.loadConfig("../mespeak/mespeak_config.json");
-		meSpeak.loadVoice("../mespeak/voices/en/en.json");
+		meSpeak.loadConfig("../mespeak_config.json");
+		meSpeak.loadVoice("../voices/en/en.json");
 		
 		var fallbackInstalled = false;
 		var hasTypedArrays = Boolean(window.Int32Array && window.Float32Array
@@ -69,9 +72,65 @@
 		// install unconditionally (for testing purpose)
 		if (document.addEventListener) document.addEventListener('DOMContentLoaded', installFallback, false);
 	</script>
+
+<style type="text/css">
+	html
+	{
+		margin: 0;
+		padding: 2em 1.5em 4.5em 1.5em;
+		background-color: #e2e3e4;
+	}
+	body
+	{
+		max-width: 900px;
+		padding: 2px 40px 60px 40px;
+		margin: 0 auto 0 auto;
+		background-color: #fafafb;
+		color: #111;
+		font-family: 'Open Sans',sans-serif;
+		font-size: 13px;
+		line-height: 19px;
+	}
+	h1,h2,h3,h4
+	{
+		font-family: 'Lato',sans-serif;
+		font-weight: 300;
+	}
+	h1 {
+		font-size: 46px;
+		line-height: 46px;
+		color: #2681a7;
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+		padding: 0;
+	}
+	h2
+	{
+		font-size: 36px;
+		color: #111;
+		margin-top: 0;
+		margin-bottom: 1.5em;
+		clear: both;
+	}
+	h1 span.pict { font-size: 38px; color: #ccc; margin-left: 0.5em; letter-spacing: -2px; }
+	p.codesample,xmp
+	{
+		margin: 1em 0;
+		padding: 1em 0 1em 2em;
+		white-space: pre;
+		font-family: monospace;
+		line-height: 18px;
+		background-color: #f2f3f5;
+		color: #111;
+	}
+	a { color: #006f9e; }
+	a:hover,a:focus { color: #2681a7; }
+	a:active { color: #cd360e; }
+</style>
 </head>
 <body>
-	<h1>meSpeak Flash Fallback <small>(for IE 10)</small></h1>
+	<h1>meSpeak.js <span class="pict">(( &bull; ))</span></h1>
+	<h2>Flash Fallback <small>(for IE 10)</small></h2>
 	
 	<p>A fallback to play meSpeak's wav-files via Flash.<br />Since typed arrays are still a requirement, the only use-case is MS Internet Explorer 10.<br />
 	Please note that, since we may not send binary data to a swf-object, the data has to be copied internally to a binary object, which may take some time and memory.<br />Because of this, the status of this solution is at best &quot;experimental&quot; and not for everyday use.</p>
@@ -81,6 +140,8 @@
 	<input type="button" value="speak: Hello world." onclick="fallbackSpeak();" /></p>
 	
 	<p>See page source for API &amp; details.</p>
+	<p>Download: <a href="http://www.masswerk.at/mespeak/msie_flashFallback.zip">msie_flashFallback.zip</a><br />
+	<em>(Installation: Put the unzipped directory inside your mespeak-directory.)</em></p>
 
 	<hr style="margin-top: 2em; margin-bottom: 2em;">
 	<p><strong>A Note on Usage:</strong><br />While the fallback-script strips down the coded needed to inject a swf-object to a minimum, best practice would be to include the script only, if applicable (i.e.: for MS IE 10 only), using MS-specific conditional comments:</p>
@@ -101,7 +162,7 @@ if (callbackInstalled) meSpeakFlashFallback.speak('Hello world.');
 	<p>This way, page- and memory-loads are reduced to a minimum for all browsers.</p>
 	<p>Please note that there is a delay between calling <code>install()</code> and the fallback actually being available, since the swf-file has to load and initialize first.</p>
 	<p>&nbsp;</p>
-	<p>Norbert Landsteiner, mass:werk &ndash; media environments, <a href="http://www.masswerk.at/">www.masswerk.at</a><br />
+	<p>Norbert Landsteiner, mass:werk &ndash; media environments, <a href="http://www.masswerk.at/" target="_top">www.masswerk.at</a><br />
 	Vienna, July 2013</p>
 </body>
 </html>

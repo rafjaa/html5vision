@@ -44,27 +44,55 @@
 	<header>
 		<nav>
 			<ul>
-				<li class="config"><a href="#"><i class="material-icons icons">settings</i></a></li>
-				<li class="info"><a href="#"><i class="material-icons icons">info_outline</i></a></li>
-				<li class="fullscreen"><a href="#" id="fullscreen-btn"><i class="material-icons icons" id="fullscreen-toggle">fullscreen</i></a></li>
+				<li class="config"><a href="#" id="config-btn"><i class="material-icons icons">settings</i></a></li>
+				<li class="info"><a href="#" id="info-btn"><i class="material-icons icons">info_outline</i></a></li>
+				<li class="fullscreen"><a href="#!" id="fullscreen-btn"><i class="material-icons icons" id="fullscreen-toggle">fullscreen</i></a></li>
 			</ul>
 		</nav>
 	</header>
-
+	
 	<main>
+		<div id="overlay" class="hidden"></div>
+		<div id="modal-config" class="modal hidden-modal">
+			<div id="modal-conteudo">
+				<h1>Configurações</h1>
+				<form id="config-form">
+					<!-- select para a voz, checkbox para objetos detectados, fazer dinamicamente -->
+					<div id="conf-vozes">
+						<h2>Gênero da voz</h2>
+						<select id="select-voz">
+							<option value="masculina">Masculina</option>
+							<option value="feminina">Feminina</option>
+						</select>
+					</div>
+		
+					<div id="checkboxes">
+						<h2>Objetos para detectar</h2>
+						
+						<input type="checkbox" name="objetos-detectados" id="qrcode" checked>
+						<label for="qrcode">Códigos QR</label><br/>
+					</div>
+				</form>
+			</div>
+			<div id="modal-footer">
+				<a href="#" id="aplicar" >Aplicar</a>
+			</div>
+		</div>
+		
 		<div id="corpo">
 			<video id="video"></video>
 			<canvas id="canvas"></canvas>	
 		</div>
 
 	</main>
-			
+	
 	<script src="static/js/screenfull.min.js"></script>
 	<script src="static/js/compatibility.js"></script>
 	<script src="static/js/objectdetect.js"></script>
 	<script src="static/js/objectdetect.classifiers.js"></script>
 	<script src="static/js/jquery.js"></script>
 	<script src="mespeak/mespeak.js"></script>
+	<script src="static/js/classificadores.js"></script>
 	<script src="static/js/main.js"></script>
 	<script src="static/js/jsqrcode-combined.min.js"></script>
 </body>

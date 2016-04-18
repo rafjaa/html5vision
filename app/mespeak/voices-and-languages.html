@@ -3,20 +3,87 @@
 <head>
 	<meta charset="utf-8" />
 	<title>meSpeak &ndash; Voices &amp; Languages</title>
-	<style type="text/css">
-		li { margin-bottom: 0.5em; }
-		h2,h3 { margin-top: 2em; }
-	</style>
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans&amp;subset=latin" rel="stylesheet" type="text/css" />
+	<link href="http://fonts.googleapis.com/css?family=Lato:300&amp;subset=latin" rel="stylesheet" type="text/css" />
+<style type="text/css">
+	html
+	{
+		margin: 0;
+		padding: 2em 1.5em 4.5em 1.5em;
+		background-color: #e2e3e4;
+	}
+	body
+	{
+		max-width: 900px;
+		padding: 2px 40px 60px 40px;
+		margin: 0 auto 0 auto;
+		background-color: #fafafb;
+		color: #111;
+		font-family: 'Open Sans',sans-serif;
+		font-size: 13px;
+		line-height: 19px;
+	}
+	h1,h2,h3,h4
+	{
+		font-family: 'Lato',sans-serif;
+		font-weight: 300;
+	}
+	h1 {
+		font-size: 46px;
+		line-height: 46px;
+		color: #2681a7;
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+		padding: 0;
+	}
+	h2
+	{
+		font-size: 36px;
+		color: #111;
+		margin-top: 0;
+		margin-bottom: 1.5em;
+		clear: both;
+	}
+	h3
+	{
+		font-size: 24px;
+		color: #111;
+		margin-top: 2em;
+	}
+	h4
+	{
+		font-size: 20px;
+		color: #111;
+		margin: 1.5em 0 1em 0.25em;
+	}
+	h1 span.pict { font-size: 38px; color: #ccc; margin-left: 0.5em; letter-spacing: -2px; }
+	p.codesample,xmp
+	{
+		margin: 1em 0;
+		padding: 1em 0 1em 2em;
+		white-space: pre;
+		font-family: monospace;
+		line-height: 18px;
+		background-color: #f2f3f5;
+		color: #111;
+	}
+	p.codesample strong { color: #222; }
+	a { color: #006f9e; }
+	a:hover,a:focus { color: #2681a7; }
+	a:active { color: #cd360e; }
+	p.action { margin: 1em 0 1em 1.5em; }
+	li { margin-bottom: 0.5em; }
+</style>
 </head>
 <body>
-
-<h1>meSpeak &ndash; Voices &amp; Languages</h1>
+<h1>meSpeak  <span class="pict">(( &bull; ))</span></h1>
+<h2>Voices &amp; Languages</h2>
 
 <p>A short guide to the set-up of languages and voices for meSpeak.<br />
 Please mind that meSpeak is based on an Emscripten-port of <a href="http://espeak.sourceforge.net/" target="_blank">eSpeak</a>, so all of the eSpeak grammar applies also to meSpeak.</p>
 
 
-<h2>Standard Language Files</h2>
+<h3>Standard Language Files</h3>
 
 <p>meSpeak's language-files provide eSpeak's language- and voice-files in a single package.<br />(Since a voice usually refers to a language and its dictionary, it seems suitable to bundle them together in a single file.)<br />The language-files are of the following structure (JSON):</p>
 
@@ -40,7 +107,7 @@ Please mind that meSpeak is based on an Emscripten-port of <a href="http://espea
 <p>For a standard language-file, you would add a base64-representation as the string value of <em>dict</em> and <em>voice</em> of the respective eSpeak-files.</p>
 
 
-<h2>Customizing</h2>
+<h3>Customizing</h3>
 
 <p>There is an alternate layout for meSpeak's language-files, which is espacially usefull for the purpose of customizing and testing:</p>
 
@@ -56,7 +123,7 @@ Please mind that meSpeak is based on an Emscripten-port of <a href="http://espea
 <p>Since eSpeak's voice-files are actually plain-text files, you may use a simple string for these, if you provide an additional property <code>&quot;voice_encoding&quot;: &quot;text&quot;</code> at the same time.</p>
 <p><em>For dictionaries, which are a binary files with eSpeak, see the note at the end of the page.</em></p>
 
-<h3>Example</h3>
+<h4>Example</h4>
 
 <p>For an example we will configure a basic female voice for &quot;en-us&quot;, which will be named &quot;en-us-f&quot;.</p>
 
@@ -116,7 +183,7 @@ And use this as a value for the &quot;<code>voice</code>&quot;-property of the J
 
 <p>For further details on voice-parameters and fine-tuning, please refer to the eSpeak-documentation: <a href="http://espeak.sourceforge.net/voices.html" target="_blank">http://espeak.sourceforge.net/voices.html</a>.</p>
 
-<h2>Custom Dictionaries</h2>
+<h3>Custom Dictionaries</h3>
 <p>eSpeak's dictonaries are binary files, which must be compiled with eSpeak first.<br />
 You would have to install eSpeak and compile a file following the <a href="http://espeak.sourceforge.net/docindex.html" target="_blank">eSpeak documentation</a>.</br />
 Further, you would insert a base64-encoded string of the resulting object-file's content as the value of the <em>dict</em> property of a meSpeak-language-file.<br />
