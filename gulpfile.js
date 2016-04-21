@@ -133,7 +133,7 @@ gulp.task('clean:dist',function(){
 gulp.task('deploy',['build'],function(){
 	return gulp.src('./dist/**/*')
 		//.pipe(debug())
-		//.pipe(ghPages());
+		.pipe(ghPages());
 });
 
 /* 
