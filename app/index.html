@@ -11,7 +11,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 	<title>Visão Computacional Assistiva</title>
 	<link rel="canonical" href="https://rafjaa.github.io/html5vision"/>
+	
+	<!--build:css static/css/styles.min.css --> 
 	<link rel="stylesheet" href="static/css/styles.css" />
+	<!-- endbuild -->
 
 	<!-- Favicons -->
 	<link rel="apple-touch-icon" sizes="57x57" href="favicons/apple-touch-icon-57x57.png?v=bOOdaqY60p">
@@ -86,14 +89,23 @@
 
 	</main>
 	
+	
+	<!-- build:js static/js/detection.min.js  -->
 	<script src="static/js/screenfull.min.js"></script>
 	<script src="static/js/compatibility.js"></script>
 	<script src="static/js/objectdetect.js"></script>
 	<script src="static/js/objectdetect.classifiers.js"></script>
-	<script src="static/js/jquery.js"></script>
-	<script src="mespeak/mespeak.js"></script>
-	<script src="static/js/classificadores.js"></script>
-	<script src="static/js/main.js"></script>
 	<script src="static/js/jsqrcode-combined.min.js"></script>
+	<script src="static/js/classificadores.js"></script>
+	<!-- endbuild -->
+	
+	<!-- build:js static/js/mespeak.js -->
+	<script src="static/js/mespeak.js"></script>
+	<!-- endbuild -->
+
+	<!-- build:js static/js/main.min.js -->
+	<script src="static/js/jquery.js"></script>
+	<script src="static/js/main.js"></script>
+	<!-- endbuild -->
 </body>
 </html>

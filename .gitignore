@@ -1,0 +1,8 @@
+## Dependency directory
+node_modules
+
+## Deploy directory
+dist
+
+## Deploy temp directory
+.publish

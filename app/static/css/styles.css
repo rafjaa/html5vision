@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400; 
   src: local('Material Icons'), 
        local('MaterialIcons-Regular'),
        url('../icons/material_icons.woff2') format('woff2');
@@ -18,7 +18,7 @@
   letter-spacing: normal;
   word-wrap: normal;
   white-space: nowrap;
-  direction: ltr;
+  direction: ltr; 
 
   /* Support for all WebKit browsers. */
   -webkit-font-smoothing: antialiased;
@@ -71,9 +71,7 @@ body{
   min-width: 100%;
   min-height:100%;
   -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
 }
 
 ul{
@@ -105,17 +103,27 @@ i{
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%,-50%);
+    -webkit-transform: translate(-50%,-50%);
+            transform: translate(-50%,-50%);
     z-index: 1;
     padding: 5px;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column;
+    
+            -webkit-flex-direction: column;
+    
+                -ms-flex-direction: column;
+    
+                    flex-direction: column;
     color: white;
     text-shadow: 0 0 5px black;
     font-weight: bold;
 }
 #modal-conteudo{
-  flex-grow: 1;
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
   padding: 5px;
 }
 form{
@@ -169,10 +177,13 @@ a#configuracao_padrao{
 
 /* Configurações do modal */
 #modal-config{
+  transition: -webkit-transform 0.4s;
   transition: transform 0.4s;
+  transition: transform 0.4s, -webkit-transform 0.4s;
 }
 .hidden-modal{
-  transform: translate(-50%,-200%);
+  -webkit-transform: translate(-50%,-200%);
+          transform: translate(-50%,-200%);
 }
 a#aplicar{
   border: 1px solid;

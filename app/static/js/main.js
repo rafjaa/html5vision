@@ -1,5 +1,9 @@
 $(document).ready(function(){
 
+    /*
+        Constrói as comboboxes dinamicamente
+    */
+
     var divcheckboxes = $('#checkboxes');
     for (var i =0;i< haar_cascade.length; i++){
         //console.log(haar_cascade[i].descricao);
@@ -10,6 +14,10 @@ $(document).ready(function(){
         divcheckboxes.append(novoinput);
     }
 
+
+    /*
+        Traz a tela de configurações ao clicar no botão.
+    */
 
     $('#config-btn').click(function(){
         if($('#modal-config').hasClass('hidden-modal')){
@@ -48,7 +56,7 @@ $(document).ready(function(){
             parametros_audio = parametros_audio_padrao;
 			localStorage['parametros_audio'] = JSON.stringify(parametros_audio_padrao); //Saved in the cache
         }else{
-			parametros_audio = localStorage['parametros_audio']; //Cache loaded
+			parametros_audio = JSON.parse(localStorage['parametros_audio']); //Cache loaded
         }
 	}else
 		parametros_audio = parametros_audio_padrao; // Without WebStorage support
@@ -56,8 +64,8 @@ $(document).ready(function(){
     var reproduzindo_audio = false;
   //  var txt_audio = document.getElementById('txt_audio');
     
-	meSpeak.loadConfig('mespeak/mespeak_config.json');
-	meSpeak.loadVoice('mespeak/voices/pt.json', function(){
+	meSpeak.loadConfig('static/json/mespeak_config.json');
+	meSpeak.loadVoice('static/json/mespeak_voice_pt.json', function(){
         // Mensagem de inicialização
         if(!reproduzindo_audio){
             reproduzindo_audio = true;
