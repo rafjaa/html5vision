@@ -9,11 +9,10 @@ $(document).ready(function(){
         //console.log(haar_cascade[i].descricao);
         var novoinput = $('<input checked type="checkbox" name="objetos-detectados" id="' + 
             haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
-            '">' + haar_cascade[i].descricao +'</label><br/>');
+            '"> ' + haar_cascade[i].descricao +'</label><br/>');
 
         divcheckboxes.append(novoinput);
     }
-
 
     /*
         Traz a tela de configurações ao clicar no botão.
@@ -21,10 +20,9 @@ $(document).ready(function(){
 
     $('#config-btn').click(function(){
         if($('#modal-config').hasClass('hidden-modal')){
-            $('#modal-config').removeClass('hidden-modal');
-            $('#overlay').removeClass('hidden');
-            $('#modal-config').addClass('visible');
-            $('#overlay').addClass('visible');
+            
+            $('#modal-config').removeClass('hidden-modal').addClass('visible');
+            $('#overlay').removeClass('hidden').addClass('visible');
 
             $( "#config-btn" ).fadeOut( 0.8, function() {
                 // Animation complete.
@@ -32,45 +30,80 @@ $(document).ready(function(){
             $( "#info-btn" ).fadeOut( 0.8, function() {
                 // Animation complete.
             });
-            // TODO: trocar icone para 'close'
             $( "#fullscreen-btn" ).fadeOut( 0.8, function() {
                 // Animation complete.
             });
+            $( "#close-li").removeClass("hidden");
 
         }else{
             $('#modal-config').removeClass('visible');
             $('#overlay').removeClass('visible');
             $('#modal-config').addClass('hidden-modal');
             $('#overlay').addClass('hidden');
+            $( "#close-li").addClass("hidden");
         }
     });
 
-    // Carrega e configura a API de áudio do cache, se possível(WebStorage API).
-	/*Parametros: variant: variação de características da voz, 
-      speed: velocidade de fala, pitch: afinação, amplitude: volume*/
-	var parametros_audio_padrao = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
-	var parametros_audio;
-	
-	if(typeof(Storage) !== undefined){
-		if(localStorage['parametros_audio'] === undefined){
-            parametros_audio = parametros_audio_padrao;
-			localStorage['parametros_audio'] = JSON.stringify(parametros_audio_padrao); //Saved in the cache
-        }else{
-			parametros_audio = JSON.parse(localStorage['parametros_audio']); //Cache loaded
+    /*
+        Fecha a tela de configurações ao clicar no botão.
+    */
+
+    $("#close-modal-btn").click(function(){
+        if($("#overlay").hasClass('visible')){
+            
+            $("#modal-config").removeClass('visible').addClass('hidden-modal');
+
+            $("#overlay").removeClass('visible').delay(300).queue(function(){
+                $(this).addClass('hidden').dequeue();
+            });
+
+            $( "#config-btn" ).fadeIn( 0.8, function() {
+                // Animation complete.
+            });
+            $( "#info-btn" ).fadeIn( 0.8, function() {
+                // Animation complete.
+            });
+            $( "#fullscreen-btn" ).fadeIn( 0.8, function() {
+                // Animation complete.
+            });
+            $( "#close-li").addClass("hidden");
         }
-	}else
-		parametros_audio = parametros_audio_padrao; // Without WebStorage support
-		
+    });
+
+    /*
+        Parametros: variant: variação de características da voz,
+        speed: velocidade de fala, pitch: afinação, amplitude: volume
+    */
+    var parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
+
+    /* 
+        Guarda preferências de detecção localmente com LocalStorage, se possível.
+    */    
+    var parametros_conf_padrao = {voz:'feminina',objetos_a_detectar:["Códigos QR"]};
+    for (var i=0;i< haar_cascade.length; i++){
+        parametros_conf_padrao.objetos_a_detectar.push(haar_cascade[i].descricao);
+    }
+
+    if(typeof(Storage) !== undefined){
+        if(localStorage['parametros_conf_padrao'] === undefined){
+            //Salvando no localStorage
+            parametros_conf = parametros_conf_padrao;
+            localStorage['parametros_conf'] = JSON.stringify(parametros_conf);
+        }else{
+            //Carregando do localStorage
+            parametros_conf = JSON.parse(localStorage['parametros_conf']);
+        }
+    }else{
+        //Sem suporte a localStorage
+        parametros_conf = parametros_conf_padrao; 
+    }
+        
     var reproduzindo_audio = false;
-  //  var txt_audio = document.getElementById('txt_audio');
-    
-	meSpeak.loadConfig('static/json/mespeak_config.json');
-	meSpeak.loadVoice('static/json/mespeak_voice_pt.json', function(){
+    meSpeak.loadConfig('static/json/mespeak_config.json');
+    meSpeak.loadVoice('static/json/mespeak_voice_pt.json', function(){
         // Mensagem de inicialização
         if(!reproduzindo_audio){
             reproduzindo_audio = true;
-           // $('#icone_audio').show();
-           // txt_audio.innerHTML = 'Aplicativo inicializado. Toque na tela para pausar.';
             meSpeak.speak('Aplicativo inicializado. Toque na tela para pausar.', parametros_audio, callback_audio);
         }
     });
@@ -93,7 +126,7 @@ $(document).ready(function(){
             pausado = false;
         }
     });
-	
+    
     var callback_audio = function(finalizado){
         if(finalizado){
             reproduzindo_audio = false;
@@ -123,8 +156,6 @@ $(document).ready(function(){
         else
             fullscreen_toggle.html('fullscreen_exit');
     });
-
-
 
     var gotSources = function(sourceInfos){
         id_source = null;
@@ -217,7 +248,7 @@ $(document).ready(function(){
         for(i in haar_cascade){
             if(!detector[i])
                 detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]['classifier']);
-        }//for	
+        }//for  
         
         for(i in haar_cascade){
             if(typeof(detector[i]) == 'function') continue;

@@ -50,6 +50,7 @@
 				<li class="config"><a href="#" id="config-btn"><i class="material-icons icons">settings</i></a></li>
 				<li class="info"><a href="#" id="info-btn"><i class="material-icons icons">info_outline</i></a></li>
 				<li class="fullscreen"><a href="#!" id="fullscreen-btn"><i class="material-icons icons" id="fullscreen-toggle">fullscreen</i></a></li>
+				<li class="close hidden" id="close-li"><a href="#" id="close-modal-btn"><i class="material-icons icons">close</i></a></li>
 			</ul>
 		</nav>
 	</header>
@@ -59,7 +60,7 @@
 		<div id="modal-config" class="modal hidden-modal">
 			<div id="modal-conteudo">
 				<h1>Configurações</h1>
-				<form id="config-form">
+				<div id="config-div">
 					<!-- select para a voz, checkbox para objetos detectados, fazer dinamicamente -->
 					<div id="conf-vozes">
 						<h2>Gênero da voz</h2>
@@ -72,10 +73,10 @@
 					<div id="checkboxes">
 						<h2>Objetos para detectar</h2>
 						
-						<input type="checkbox" name="objetos-detectados" id="qrcode" checked>
+						<input checked type="checkbox" name="objetos-detectados" id="qrcode">
 						<label for="qrcode">Códigos QR</label><br/>
 					</div>
-				</form>
+				</div>
 			</div>
 			<div id="modal-footer">
 				<a href="#" id="aplicar" >Aplicar</a>

@@ -37,6 +37,8 @@
     padding: 0;
     list-style: none;
     box-sizing: border-box;
+    text-decoration: none;
+    outline: none;
 }
 
 body{
@@ -79,7 +81,7 @@ ul{
 }
 li{
   display:inline;
-  widows: 33.33%;
+  width: 33.33%;
 }
 i{
   padding: 12px;
@@ -126,26 +128,25 @@ i{
           flex-grow: 1;
   padding: 5px;
 }
-form{
+#config-div{
   margin: 1em 0;
 }
-form label{
+#config-div label{
   font-size:12px;
 }
-#config-form div{
+#config-div div{
   padding:10px 0;
   width:80%;
   display: inline-block;
 }
-#config-form div{
+#config-div div{
   text-align:left;
 }
-#config-form h2{
+#config-div h2{
   font-size:16px;
 }
 
-a#aplicar, a#cancelar, a#configuracao_padrao {
-    text-decoration: none;
+a#aplicar {
     color: #fff;
     border-radius: 5%;
     padding: 5px;
@@ -153,9 +154,7 @@ a#aplicar, a#cancelar, a#configuracao_padrao {
     width: 45%;
     display: inline-block;
 }
-a#configuracao_padrao{
-  width: 80%;
-}
+
 #overlay {
     width: 100vw;
     height: 100vh;
@@ -167,6 +166,7 @@ a#configuracao_padrao{
 /*Configurações do div overlay*/
 .hidden{
   max-height: 0vh;
+  display: none;
 }
 .visible{
   max-height:100vh;
@@ -187,4 +187,8 @@ a#configuracao_padrao{
 }
 a#aplicar{
   border: 1px solid;
+}
+#close-li{
+  float:right;
+  text-align: right;
 }
