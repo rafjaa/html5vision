@@ -1,4 +1,3 @@
-localStorage.clear();
 $(document).ready(function(){
 
     /*
@@ -80,18 +79,22 @@ $(document).ready(function(){
         
         salvarConfiguracoes(parametros_conf);
         fechaModalDeConfiguracoes();
+        trocaVariacaoDeAudio(genero_selecionado);
     });
 
     /*
+        Parametros de áudio padrão. O único valor que poderá ser alterado pelo
+        usuário é o gênero da voz (trocando o valor da chave variant).
         Parametros: variant: variação de características da voz,
         speed: velocidade de fala, pitch: afinação, amplitude: volume
     */
-    var parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
-
-    //TODO: Trocar genero do audio 
+    parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
 
     var parametros_conf = carregarConfiguracoes();
     configurarMenuConf(parametros_conf);
+
+    //Troca a variação de voz, de acordo com o selecionado
+    trocaVariacaoDeAudio(parametros_conf.voz);
 
     var reproduzindo_audio = false;
     meSpeak.loadConfig('static/json/mespeak_config.json');
@@ -115,7 +118,7 @@ $(document).ready(function(){
             pausado = true;
         }else{
             meSpeak.stop();
-            meSpeak.speak('Executando. Toque a tela para pausar.', parametros_audio, callback_audio);
+            meSpeak.speak('Executando. Toque na tela para pausar.', parametros_audio, callback_audio);
             pausado = false;
         }
     });
@@ -393,4 +396,14 @@ var fechaModalDeConfiguracoes = function(){
         });
         $( "#close-li").addClass("hidden");
     }
+}
+
+/*
+    Recebe como parametro o id do objeto selecionado no select de
+    gênero da voz, e troca o genero da voz com o valor do atributo
+    contido na tag (data attribute), a variação da voz.
+*/
+var trocaVariacaoDeAudio = function(id_objeto){
+    parametros_audio.variant = document.getElementById(id_objeto).getAttribute('data-variacao-voz');
+    console.log('TROCA VARIACAO DE AUDIO: ',parametros_audio);
 }
