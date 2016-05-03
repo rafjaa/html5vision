@@ -1,3 +1,4 @@
+localStorage.clear();
 $(document).ready(function(){
 
     /*
@@ -7,7 +8,7 @@ $(document).ready(function(){
     var divcheckboxes = $('#checkboxes');
     for (var i =0;i< haar_cascade.length; i++){
         //console.log(haar_cascade[i].descricao);
-        var novoinput = $('<input checked type="checkbox" name="objetos-detectados" id="' + 
+        var novoinput = $('<input checobjetos_a_detectar:ked type="checkbox" name="objetos-detectados" id="' + 
             haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
             '"> ' + haar_cascade[i].descricao +'</label><br/>');
 
@@ -25,13 +26,13 @@ $(document).ready(function(){
             $('#overlay').removeClass('hidden').addClass('visible');
 
             $( "#config-btn" ).fadeOut( 0.8, function() {
-                // Animation complete.
+                // Animação completa.
             });
             $( "#info-btn" ).fadeOut( 0.8, function() {
-                // Animation complete.
+                // Animação completa.
             });
             $( "#fullscreen-btn" ).fadeOut( 0.8, function() {
-                // Animation complete.
+                // Animação completa.
             });
             $( "#close-li").removeClass("hidden");
 
@@ -45,29 +46,40 @@ $(document).ready(function(){
     });
 
     /*
-        Fecha a tela de configurações ao clicar no botão.
+        Fecha a tela de configurações ao clicar no botão e cancela as alterações realizadas.
     */
 
     $("#close-modal-btn").click(function(){
-        if($("#overlay").hasClass('visible')){
-            
-            $("#modal-config").removeClass('visible').addClass('hidden-modal');
+        fechaModalDeConfiguracoes();
 
-            $("#overlay").removeClass('visible').delay(300).queue(function(){
-                $(this).addClass('hidden').dequeue();
-            });
+        //Se o usuário cancela a operação, as configurações anteriores são carregadas
+        configurarMenuConf(parametros_conf);
+    });
 
-            $( "#config-btn" ).fadeIn( 0.8, function() {
-                // Animation complete.
-            });
-            $( "#info-btn" ).fadeIn( 0.8, function() {
-                // Animation complete.
-            });
-            $( "#fullscreen-btn" ).fadeIn( 0.8, function() {
-                // Animation complete.
-            });
-            $( "#close-li").addClass("hidden");
+
+    /*
+        Salva as configurações na variável global parametros_conf e no local Storage se possível.
+    */
+
+    $("#aplicar").click(function(){
+        var select_opcoes = document.getElementById('select-voz');
+
+        var genero_selecionado = select_opcoes.options[select_opcoes.selectedIndex].value;
+        
+        parametros_conf.voz = genero_selecionado;
+
+        var keys = Object.keys(parametros_conf.objetos_a_detectar);
+        var length = keys.length;
+
+        for (var i = 0; i < length; i++){
+            var key = keys[i];
+            var elem = document.getElementById(key);
+
+            parametros_conf.objetos_a_detectar[key] = elem.checked;
         }
+        
+        salvarConfiguracoes(parametros_conf);
+        fechaModalDeConfiguracoes();
     });
 
     /*
@@ -76,28 +88,11 @@ $(document).ready(function(){
     */
     var parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
 
-    /* 
-        Guarda preferências de detecção localmente com LocalStorage, se possível.
-    */    
-    var parametros_conf_padrao = {voz:'feminina',objetos_a_detectar:["Códigos QR"]};
-    for (var i=0;i< haar_cascade.length; i++){
-        parametros_conf_padrao.objetos_a_detectar.push(haar_cascade[i].descricao);
-    }
+    //TODO: Trocar genero do audio 
 
-    if(typeof(Storage) !== undefined){
-        if(localStorage['parametros_conf_padrao'] === undefined){
-            //Salvando no localStorage
-            parametros_conf = parametros_conf_padrao;
-            localStorage['parametros_conf'] = JSON.stringify(parametros_conf);
-        }else{
-            //Carregando do localStorage
-            parametros_conf = JSON.parse(localStorage['parametros_conf']);
-        }
-    }else{
-        //Sem suporte a localStorage
-        parametros_conf = parametros_conf_padrao; 
-    }
-        
+    var parametros_conf = carregarConfiguracoes();
+    configurarMenuConf(parametros_conf);
+
     var reproduzindo_audio = false;
     meSpeak.loadConfig('static/json/mespeak_config.json');
     meSpeak.loadVoice('static/json/mespeak_voice_pt.json', function(){
@@ -113,14 +108,12 @@ $(document).ready(function(){
 
     $('#corpo').click(function(){
         reproduzindo_audio = true;
-        //$('#icone_audio').show();
+
         if(!pausado){
-           // txt_audio.innerHTML = 'Pausado. Toque na tela para continuar.';
             meSpeak.stop();
             meSpeak.speak('Pausado. Toque na tela para continuar.', parametros_audio, callback_audio);
             pausado = true;
         }else{
-           // txt_audio.innerHTML = 'Executando. Toque na tela para pausar.';
             meSpeak.stop();
             meSpeak.speak('Executando. Toque a tela para pausar.', parametros_audio, callback_audio);
             pausado = false;
@@ -130,11 +123,11 @@ $(document).ready(function(){
     var callback_audio = function(finalizado){
         if(finalizado){
             reproduzindo_audio = false;
-           // $('#icone_audio').hide();
         }
     }
 
-    
+    console.log(parametros_conf);
+
     var PRECISAO_MINIMA_DETECCAO = 7;
     var PRECISAO_MINIMA_DETECCAO_PADRAO = 7;
    
@@ -231,16 +224,20 @@ $(document).ready(function(){
             var dados  = ''; 
             ctx.drawImage(video, 0, 0);
 
-            try{
-                var dados = qrcode.decode();
-                reproduzindo_audio = true;
-                meSpeak.speak(dados, parametros_audio,callback_audio);
-                deteccao_pausada = true;
-                setTimeout(function(){
-                    deteccao_pausada = false;
-                },3000);
-            }catch(e){
-               //console.log('excecao: ' + e);
+            
+            if(parametros_conf.objetos_a_detectar['qrcode']){
+                //Detectando QR Codes
+                try{
+                    var dados = qrcode.decode();
+                    reproduzindo_audio = true;
+                    meSpeak.speak(dados, parametros_audio,callback_audio);
+                    deteccao_pausada = true;
+                    setTimeout(function(){
+                        deteccao_pausada = false;
+                    },3000);
+                }catch(e){
+                   console.log('Erro ao decodificar QRCode: ' + e);
+                }
             }
         }
         
@@ -252,8 +249,15 @@ $(document).ready(function(){
         
         for(i in haar_cascade){
             if(typeof(detector[i]) == 'function') continue;
-            
-            
+
+            //Pula a detecção do objeto que está desativado nas configurações
+            if(parametros_conf.objetos_a_detectar[haar_cascade[i].id] === false){
+                console.log('parando a execucao corrente\n'+
+                    'parametros_conf:',parametros_conf.objetos_a_detectar[haar_cascade[i].id],
+                    'haar_cascade:',haar_cascade[i].id)
+                continue;
+            }
+                        
             var coords = detector[i].detect(video,1);
             if(coords.length == 0) 
                 continue;
@@ -287,8 +291,6 @@ $(document).ready(function(){
             ctx.shadowOffsetY = 1;
             ctx.fillText(descricao, obj[0], obj[1] + obj[3] + 25);
         
-            
-         //   txt_audio.innerHTML = descricao;
             if(!reproduzindo_audio){ 
                 reproduzindo_audio = true;
                 meSpeak.stop();
@@ -302,3 +304,93 @@ $(document).ready(function(){
         }//for
     }//function()
 });
+
+/*
+    Configura os inputs do menu de configurações com as informações
+    continas na variável passada por parâmetro.
+*/
+var configurarMenuConf = function(conf){
+    //Carrega o gênero da voz
+    document.getElementById(conf.voz).selected = true;
+
+    //Carrega as checkboxes
+    var keys = Object.keys(conf.objetos_a_detectar);feminina
+
+    for (var i = 0; i < keys.length; i++){
+        var key = keys[i];
+        document.getElementById(key).checked = conf.objetos_a_detectar[key];
+    }
+}
+
+/*
+    Carrega as configurações iniciais do aplicativo.
+    Se for a primeira execução, salva no localStorage, se possível.
+    Se não for a primeira vez, e houver localStorage, as configurações no localStorage são recuperadas.
+*/
+var carregarConfiguracoes = function(){
+    var parametros_conf_padrao = {voz:'feminina',objetos_a_detectar:[{'qrcode':true}]};
+    var parametros_conf;
+    var length = haar_cascade.length;
+    
+    var json = {qrcode:true}
+    for(var i=0;i < length; i++){
+        json[haar_cascade[i].id] = true;
+    }
+    console.log('objetos: ',json);
+
+    parametros_conf_padrao.objetos_a_detectar = json;
+
+    if(window.localStorage){
+        if(localStorage['parametros_conf'] === undefined){
+            //Salvando no localStorage
+            parametros_conf = parametros_conf_padrao;
+            window.localStorage['parametros_conf'] = JSON.stringify(parametros_conf);
+            console.log('Salvo no localStorage');
+        }else{
+            //Carregando do localStorage
+            parametros_conf = JSON.parse(window.localStorage['parametros_conf']);
+            console.log('Carregado do localStorage');
+        }
+    }else{
+        //Sem suporte a localStorage. As configurações padrão são carregadas.
+        parametros_conf = parametros_conf_padrao;
+        console.log('localStorage não disponível');
+    }
+    console.log('Informações Carregadas:\n',parametros_conf);
+    return parametros_conf;
+}
+
+/*
+    Salva as configurações no localStorage, se disponível.
+*/
+var salvarConfiguracoes = function(conf){
+    if(window.localStorage){
+        window.localStorage['parametros_conf'] = JSON.stringify(conf);
+    }
+    console.log('Salvo no localStorage:\n',conf);
+}
+
+/*
+    Fecha o modal de configurações.
+*/
+var fechaModalDeConfiguracoes = function(){
+    if($("#overlay").hasClass('visible')){
+
+        $("#modal-config").removeClass('visible').addClass('hidden-modal');
+
+        $("#overlay").removeClass('visible').delay(200).queue(function(){
+            $(this).addClass('hidden').dequeue();
+        });
+
+        $( "#config-btn" ).fadeIn( 0.8, function() {
+            // Animation complete.
+        });
+        $( "#info-btn" ).fadeIn( 0.8, function() {
+            // Animation complete.
+        });
+        $( "#fullscreen-btn" ).fadeIn( 0.8, function() {
+            // Animation complete.
+        });
+        $( "#close-li").addClass("hidden");
+    }
+}
