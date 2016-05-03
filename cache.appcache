@@ -5,11 +5,11 @@ CACHE:
 index.html
 static/css/styles.min.css
 static/icons/material_icons.woff2
-static/json/mespeak_config.json
-static/json/mespeak_voice_pt.json
 static/js/detection.min.js
 static/js/main.min.js
 static/js/mespeak.js
+static/json/mespeak_config.json
+static/json/mespeak_voice_pt.json
 static/fonts/roboto/Roboto-Regular.eot
 static/fonts/roboto/Roboto-Regular.ttf
 static/fonts/roboto/Roboto-Regular.woff
@@ -19,4 +19,4 @@ static/fonts/roboto/Roboto-Regular.woff2
 NETWORK:
 *
 
-# hash: 9b3308ef8efc9d7e5f97476e512282505eb0763e8cde96ccac87347c56cbcc28
+# hash: 0f615f339138f669eb2b5be8388893d7cb058c6e66139813e0d3e1394b2d4452
