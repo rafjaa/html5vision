@@ -65,6 +65,7 @@ gulp.task('build_html',function(){
 				if_return: true, // optimizations for if/return, if/continue
 				join_vars: true, // join consecutive var statements
 				properties: true, // rewrite property access using dot notation (foo['bar'] -> foo.bar)
+				drop_console:true // remove console.log	
 			}
 		})))
 		.pipe(gulpIf('**/detection.min.js', uglify({
