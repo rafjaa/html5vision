@@ -1,24 +1,71 @@
-$(document).ready(function(){
+// FIXIT: ao iniciar, evitar que uma frase seja falada antes da mensagem 
+// de inicialização (usando API de síntese de fala).
+
+$(document).ready(function(){    
+    window.addEventListener('online',atualizarStatusOnline);
+    window.addEventListener('offline',atualizarStatusOnline);
+
+    //Se houver áudio em reprodução, recebe verdadeiro.
+    reproduzindo_audio = false;
+
+    // Evento de clique na tela (pause/continue)
+    video_pausado = false;
+
+    var detector = [];
+   
+    var ultimo_obj_detectado = ''; 
+    var deteccao_pausada = true;
+
+    timeoutDeteccao = undefined, timeoutDeteccaoQRCode = undefined;
 
     /*
-        Constrói as comboboxes dinamicamente
+        Parametros de áudio padrão. O único valor que poderá ser alterado pelo
+        usuário é o gênero da voz (trocando o valor da chave variant).
+        Parametros: variant: variação de características da voz,
+        speed: velocidade de fala, pitch: afinação, amplitude: volume
     */
+    parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
 
-    var divcheckboxes = $('#checkboxes');
-    for (var i =0;i< haar_cascade.length; i++){
-        //console.log(haar_cascade[i].descricao);
-        var novoinput = $('<input checobjetos_a_detectar:ked type="checkbox" name="objetos-detectados" id="' + 
-            haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
-            '"> ' + haar_cascade[i].descricao +'</label><br/>');
+    var parametros_conf = carregarConfiguracoes();
+    
+    atualizarStatusOnline();
+    
+    // Constrói as checkboxes na tela de configuração, e configura as opções.
+    construirCheckboxes();
+    configurarMenuConf(parametros_conf);
 
-        divcheckboxes.append(novoinput);
-    }
+    //Troca a variação de voz, de acordo com o selecionado
+    trocaVariacaoDeAudio(parametros_conf.voz);    
+
+    var PRECISAO_MINIMA_DETECCAO = 7;
+    var PRECISAO_MINIMA_DETECCAO_PADRAO = 7;
+   
+    video = document.getElementById('video');
+    canvas = document.getElementById('canvas');
+    canvas.hidden = true;
+    ctx = canvas.getContext( '2d' );
+    ctx.scale(.3,.3);
+
+    /*
+        Posterga a reprodução da mensagem de inicialização, para dar tempo de a voz
+        da API de síntese de áudio ser carregada.
+    */
+    setTimeout(function(){
+        //Mensagem de inicialização
+        reproduzirAudio('Aplicativo inicializado. Toque na tela para pausar.');
+        deteccao_pausada = false;
+    },1000);
 
     /*
         Traz a tela de configurações ao clicar no botão.
     */
-
     $('#config-btn').click(function(){
+
+        // Ao abrir a tela de configurações, pausa as detecções de objetos e códigos QR.
+        clearTimeout(timeoutDeteccao);
+        clearTimeout(timeoutDeteccaoQRCode);
+        deteccao_pausada = true;
+
         if($('#modal-config').hasClass('hidden-modal')){
             
             $('#modal-config').removeClass('hidden-modal').addClass('visible');
@@ -47,20 +94,21 @@ $(document).ready(function(){
     /*
         Fecha a tela de configurações ao clicar no botão e cancela as alterações realizadas.
     */
-
     $("#close-modal-btn").click(function(){
+        deteccao_pausada = false;
+
         fechaModalDeConfiguracoes();
 
         //Se o usuário cancela a operação, as configurações anteriores são carregadas
         configurarMenuConf(parametros_conf);
     });
 
-
     /*
         Salva as configurações na variável global parametros_conf e no local Storage se possível.
     */
-
     $("#aplicar").click(function(){
+        deteccao_pausada = false;
+
         var select_opcoes = document.getElementById('select-voz');
 
         var genero_selecionado = select_opcoes.options[select_opcoes.selectedIndex].value;
@@ -82,64 +130,18 @@ $(document).ready(function(){
         trocaVariacaoDeAudio(genero_selecionado);
     });
 
-    /*
-        Parametros de áudio padrão. O único valor que poderá ser alterado pelo
-        usuário é o gênero da voz (trocando o valor da chave variant).
-        Parametros: variant: variação de características da voz,
-        speed: velocidade de fala, pitch: afinação, amplitude: volume
-    */
-    parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
-
-    var parametros_conf = carregarConfiguracoes();
-    configurarMenuConf(parametros_conf);
-
-    //Troca a variação de voz, de acordo com o selecionado
-    trocaVariacaoDeAudio(parametros_conf.voz);
-
-    var reproduzindo_audio = false;
-    meSpeak.loadConfig('static/json/mespeak_config.json');
-    meSpeak.loadVoice('static/json/mespeak_voice_pt.json', function(){
-        // Mensagem de inicialização
-        if(!reproduzindo_audio){
-            reproduzindo_audio = true;
-            meSpeak.speak('Aplicativo inicializado. Toque na tela para pausar.', parametros_audio, callback_audio);
-        }
-    });
-    
-    // Evento de clique na tela (pause/continue)
-    pausado = false;
-
     $('#corpo').click(function(){
         reproduzindo_audio = true;
 
-        if(!pausado){
-            meSpeak.stop();
-            meSpeak.speak('Pausado. Toque na tela para continuar.', parametros_audio, callback_audio);
-            pausado = true;
+        if(!video_pausado){
+            reproduzirAudio('Pausado. Toque na tela para continuar.');
+            video_pausado = true;
         }else{
-            meSpeak.stop();
-            meSpeak.speak('Executando. Toque na tela para pausar.', parametros_audio, callback_audio);
-            pausado = false;
+            reproduzirAudio('Executando. Toque na tela para pausar.');
+            video_pausado = false;
         }
     });
-    
-    var callback_audio = function(finalizado){
-        if(finalizado){
-            reproduzindo_audio = false;
-        }
-    }
 
-    console.log(parametros_conf);
-
-    var PRECISAO_MINIMA_DETECCAO = 7;
-    var PRECISAO_MINIMA_DETECCAO_PADRAO = 7;
-   
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    canvas.hidden = true;
-    ctx = canvas.getContext( '2d' );
-    ctx.scale(.3,.3);
-   
     $('#fullscreen-btn').click(function(){
         if (screenfull.enabled){
             screenfull.toggle();
@@ -175,17 +177,15 @@ $(document).ready(function(){
                 }catch(error){
                     video.src = stream;
                 }
-             //   txt_audio.innerHTML = 'Analisando ambiente...';
                 compatibility.requestAnimationFrame(play);
 
             }, function(error){
-                alert('Não foi possível acessar a câmera');
+                //alert('Não foi possível acessar a câmera');
             });
 
         }catch(error) {
             alert('Ocorreu um erro: ' + error);
         }
-        
     }//gotSources
 
     // Se houver mais de uma câmera, obtém a frontal
@@ -195,15 +195,10 @@ $(document).ready(function(){
         MediaStreamTrack.getSources(gotSources);
     }                
     
-    var detector = [];
-   
-    var ultimo_obj_detectado = ''; 
-    var deteccao_pausada = false;
-    
     play = function(){
         compatibility.requestAnimationFrame(play);
         
-        if(pausado){
+        if(video_pausado){
             if(!video.paused){
                 video.pause();
             }
@@ -219,7 +214,7 @@ $(document).ready(function(){
         canvas.hidden = true;
         video.hidden = false;
 
-        if(deteccao_pausada){
+        if(deteccao_pausada == true){
             return;
         }
         
@@ -232,10 +227,9 @@ $(document).ready(function(){
                 //Detectando QR Codes
                 try{
                     var dados = qrcode.decode();
-                    reproduzindo_audio = true;
-                    meSpeak.speak(dados, parametros_audio,callback_audio);
+                    reproduzirAudio(dados);
                     deteccao_pausada = true;
-                    setTimeout(function(){
+                    timeoutDeteccaoQRCode = setTimeout(function(){
                         deteccao_pausada = false;
                     },3000);
                 }catch(e){
@@ -255,9 +249,9 @@ $(document).ready(function(){
 
             //Pula a detecção do objeto que está desativado nas configurações
             if(parametros_conf.objetos_a_detectar[haar_cascade[i].id] === false){
-                console.log('parando a execucao corrente\n'+
-                    'parametros_conf:',parametros_conf.objetos_a_detectar[haar_cascade[i].id],
-                    'haar_cascade:',haar_cascade[i].id)
+              //  console.log('parando a execucao corrente\n'+
+              //      'parametros_conf:',parametros_conf.objetos_a_detectar[haar_cascade[i].id],
+              //      'haar_cascade:',haar_cascade[i].id)
                 continue;
             }
                         
@@ -294,19 +288,25 @@ $(document).ready(function(){
             ctx.shadowOffsetY = 1;
             ctx.fillText(descricao, obj[0], obj[1] + obj[3] + 25);
         
-            if(!reproduzindo_audio){ 
-                reproduzindo_audio = true;
-                meSpeak.stop();
-                meSpeak.speak(haar_cascade[i]['descricao'],parametros_audio,callback_audio);
+            if(!reproduzindo_audio){
+                console.log('reproduzindo audio da deteccao de: ' + haar_cascade[i]['descricao']);
+                reproduzirAudio(haar_cascade[i]['descricao']);
                 ultimo_obj_detectado = descricao; 
                 deteccao_pausada = true;
-                setTimeout(function(){
+                timeoutDeteccao = setTimeout(function(){
                     deteccao_pausada = false;   
-                },3000);
+                },5000);
             }
         }//for
     }//function()
 });
+
+// Armazena o objeto da API de fala nativa do browser (se disponível).
+speechApiObj = undefined;
+// Recebe verdadeiro, se a APi de fala do browser com voz em português brasileiro estiver disponível.
+usarAudioNativo = false;
+// Variável auxiliar para verificar se o navegador está conectado a internet.
+navegadorOnline = undefined;
 
 /*
     Configura os inputs do menu de configurações com as informações
@@ -406,4 +406,116 @@ var fechaModalDeConfiguracoes = function(){
 var trocaVariacaoDeAudio = function(id_objeto){
     parametros_audio.variant = document.getElementById(id_objeto).getAttribute('data-variacao-voz');
     console.log('TROCA VARIACAO DE AUDIO: ',parametros_audio);
+}
+
+/*
+    Configura a API de síntese de fala, se está presente no navegador. 
+    Recebe como parâmetro a voz a ser utilizada (portugês do Brasil).
+*/
+var inicializaAPIDeFala = function(voice){
+    if (!'speechSynthesis' in window || !'SpeechSynthesisUtterance' in window)
+        return null;
+
+    speechApiObj = new SpeechSynthesisUtterance();
+    speechApiObj.voice = voice;
+    ﻿speechApiObj.voiceURI = 'Google português do Brasil';
+    speechApiObj.volume = 1; // 0 to 1
+    speechApiObj.rate = 1; // 0.1 to 10
+    speechApiObj.pitch = 1; //0 to 2
+    speechApiObj.text = '';
+    speechApiObj.lang = 'pt-BR';
+
+    speechApiObj.onstart = function(e){
+        console.log('Audio "', e.utterance.text, '" iniciado.');
+        reproduzindo_audio = true;
+    };
+    speechApiObj.onend = function(e) {
+      console.log('Audio "',e.utterance.text,'" reproduzido.');
+      reproduzindo_audio = false;
+    };
+    speechApiObj.onerror = function(e) {
+      console.log('Erro na reprodução de "',e.utterance.text, '"');
+      reproduzindo_audio = false;
+      usarAudioNativo = false;
+    };
+}
+
+/*
+    As vozes da API de síntese de fala são carregadas de forma assíncrona.
+    Esta função é chamada quando estas vozes são carregadas.
+    Se houver voz em português do Brasil disponível, inicializa os parâmetros da API de síntese de fala.
+*/
+window.speechSynthesis.onvoiceschanged = function(){
+    console.log('Voices changed: ' + window.speechSynthesis.getVoices().length +' voices loaded.');
+    
+    var voices = window.speechSynthesis.getVoices();
+    var voice = voices.filter(function(voice) { return voice.lang == 'pt-BR'; })[0];
+    
+    if(voice == undefined){
+        usarAudioNativo = false;
+        return;
+    }
+    
+    usarAudioNativo = true;
+    inicializaAPIDeFala(voice);
+}
+
+/*
+    Reproduz as mensagens do aplicativo. Se estiver disponível API de síntese de fala, esta é usada,
+    se não, a API do meSpeak é utilizada.
+*/
+var reproduzirAudio = function(msg){
+    if(navegadorOnline == true && usarAudioNativo == true){
+        // Cancela a execução de algum áudio em reprodução, e remove o áudio, 
+        // se estiver na fila de reprodução.
+        window.speechSynthesis.cancel();
+
+        speechApiObj.text = msg;
+        window.speechSynthesis.speak(speechApiObj);
+
+    }else{//Reproduzir audio usando meSpeak
+        if(!meSpeak.isConfigLoaded()){
+            meSpeak.loadConfig('static/json/mespeak_config.json');
+        }
+        
+        if (!meSpeak.isVoiceLoaded('pt')){
+            meSpeak.loadVoice('static/json/mespeak_voice_pt.json')
+        }
+
+        meSpeak.stop();
+        reproduzindo_audio = true;
+        meSpeak.speak(msg, parametros_audio, function(finalizado){
+            if(finalizado){
+                reproduzindo_audio = false;
+            }
+        });
+    }
+}
+
+/*
+    Constrói as checkboxes da tela de configurações dinamicamente
+*/
+var construirCheckboxes = function(){
+
+    var divcheckboxes = $('#checkboxes');
+    for (var i =0;i< haar_cascade.length; i++){
+
+        var novoinput = $('<input checobjetos_a_detectar:ked type="checkbox" name="objetos-detectados" id="' + 
+            haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
+            '"> ' + haar_cascade[i].descricao +'</label><br/>');
+
+        divcheckboxes.append(novoinput);
+    }
+}
+
+/*
+    Chamado cada vez que o navegador muda a conexão.
+*/
+var atualizarStatusOnline = function(){
+    if(navigator.onLine){
+        navegadorOnline = true;
+    }else{
+        navegadorOnline = false;
+    }
+    console.log('navegador online: ' + navegadorOnline);
 }
