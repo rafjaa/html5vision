@@ -1,6 +1,10 @@
 // FIXIT: ao iniciar, evitar que uma frase seja falada antes da mensagem 
 // de inicialização (usando API de síntese de fala).
 
+//TODO: trocar select do genero da voz para inputs de radio
+//TODO: adicionar label com a precisão de detecção com dois botôes ( + e - )
+//TODO: modificar tela de configurações, aumentar a altura (verificar 85% de altura)
+
 $(document).ready(function(){    
     window.addEventListener('online',atualizarStatusOnline);
     window.addEventListener('offline',atualizarStatusOnline);
@@ -68,6 +72,7 @@ $(document).ready(function(){
         clearTimeout(timeoutDeteccaoQRCode);
         deteccao_pausada = true;
 
+        // Exibe o select do genero da voz apenas se o audio nativo está disponivel
         if(usarAudioNativo && (navegadorOnline || speechApiObj.localService)){
             selectGeneroDaVoz.hide(0);
         }else{
@@ -138,7 +143,7 @@ $(document).ready(function(){
         trocaVariacaoDeAudio(genero_selecionado);
     });
 
-    // TODO: mostrar janela de informações
+    // Janela de informações do aplicativo
     document.getElementById('info-btn').onclick = function(){
         //alert('info clicked');
     }
