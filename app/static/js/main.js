@@ -33,6 +33,8 @@ $(document).ready(function(){
     // Constrói as checkboxes na tela de configuração, e configura as opções.
     construirCheckboxes();
     configurarMenuConf(parametros_conf);
+    // Inizializa a variável abaixo após construir os checkboxes.
+    selectGeneroDaVoz = $('#conf-vozes');
 
     //Troca a variação de voz, de acordo com o selecionado
     trocaVariacaoDeAudio(parametros_conf.voz);    
@@ -45,7 +47,7 @@ $(document).ready(function(){
     canvas.hidden = true;
     ctx = canvas.getContext( '2d' );
     ctx.scale(.3,.3);
-
+ 
     /*
         Posterga a reprodução da mensagem de inicialização, para dar tempo de a voz
         da API de síntese de áudio ser carregada.
@@ -54,7 +56,7 @@ $(document).ready(function(){
         //Mensagem de inicialização
         reproduzirAudio('Aplicativo inicializado. Toque na tela para pausar.');
         deteccao_pausada = false;
-    },1000);
+    },2000);
 
     /*
         Traz a tela de configurações ao clicar no botão.
@@ -65,6 +67,12 @@ $(document).ready(function(){
         clearTimeout(timeoutDeteccao);
         clearTimeout(timeoutDeteccaoQRCode);
         deteccao_pausada = true;
+
+        if(usarAudioNativo && (navegadorOnline || speechApiObj.localService)){
+            selectGeneroDaVoz.hide(0);
+        }else{
+            selectGeneroDaVoz.show(0);
+        }
 
         if($('#modal-config').hasClass('hidden-modal')){
             
@@ -129,6 +137,11 @@ $(document).ready(function(){
         fechaModalDeConfiguracoes();
         trocaVariacaoDeAudio(genero_selecionado);
     });
+
+    // TODO: mostrar janela de informações
+    document.getElementById('info-btn').onclick = function(){
+        //alert('info clicked');
+    }
 
     $('#corpo').click(function(){
         reproduzindo_audio = true;
@@ -307,7 +320,8 @@ speechApiObj = undefined;
 usarAudioNativo = false;
 // Variável auxiliar para verificar se o navegador está conectado a internet.
 navegadorOnline = undefined;
-
+// Armazena a referência da div contendo o select de voz, que será escondido quando o meSpeak não for utilizado.
+selectGeneroDaVoz = undefined;
 /*
     Configura os inputs do menu de configurações com as informações
     continas na variável passada por parâmetro.
@@ -412,18 +426,23 @@ var trocaVariacaoDeAudio = function(id_objeto){
     Configura a API de síntese de fala, se está presente no navegador. 
     Recebe como parâmetro a voz a ser utilizada (portugês do Brasil).
 */
-var inicializaAPIDeFala = function(voice){
-    if (!'speechSynthesis' in window || !'SpeechSynthesisUtterance' in window)
+var inicializaAPIDeFalaNativa = function(voice){
+    if (!'speechSynthesis' in window || !'SpeechSynthesisUtterance' in window){
+        console.log('speechSynthesis ou SpeechSynthesisUtterance não presente.');
         return null;
+    }
 
     speechApiObj = new SpeechSynthesisUtterance();
     speechApiObj.voice = voice;
-    ﻿speechApiObj.voiceURI = 'Google português do Brasil';
+    speechApiObj.voiceURI = voice.voiceURI || 'Google português do Brasil';
+    speechApiObj.name = voice.name || 'Google português do Brasil';
+    speechApiObj.lang = voice.lang || 'pt-BR';
+    speechApiObj.localService = voice.localService;
     speechApiObj.volume = 1; // 0 to 1
     speechApiObj.rate = 1; // 0.1 to 10
     speechApiObj.pitch = 1; //0 to 2
     speechApiObj.text = '';
-    speechApiObj.lang = 'pt-BR';
+    
 
     speechApiObj.onstart = function(e){
         console.log('Audio "', e.utterance.text, '" iniciado.');
@@ -438,6 +457,7 @@ var inicializaAPIDeFala = function(voice){
       reproduzindo_audio = false;
       usarAudioNativo = false;
     };
+    console.log('API de fala iniciada:\n',speechApiObj);
 }
 
 /*
@@ -446,18 +466,29 @@ var inicializaAPIDeFala = function(voice){
     Se houver voz em português do Brasil disponível, inicializa os parâmetros da API de síntese de fala.
 */
 window.speechSynthesis.onvoiceschanged = function(){
-    console.log('Voices changed: ' + window.speechSynthesis.getVoices().length +' voices loaded.');
-    
     var voices = window.speechSynthesis.getVoices();
-    var voice = voices.filter(function(voice) { return voice.lang == 'pt-BR'; })[0];
     
-    if(voice == undefined){
+    /*
+    //Imprimindo array de vozes
+    for(var i=0;i<voices.length;i++){
+        console.log(voices[i]);
+    }
+    */
+
+    var voice = voices.filter(function(voice) {
+        return voice.lang == 'pt-BR' || voice.lang == 'pt_BR';
+    })[0];
+    
+    if(!voice){
         usarAudioNativo = false;
+        console.log('Voz nativa não carregada')
         return;
     }
     
+    console.log('Voz nativa carregada: ', voice);
+
     usarAudioNativo = true;
-    inicializaAPIDeFala(voice);
+    inicializaAPIDeFalaNativa(voice);
 }
 
 /*
@@ -465,7 +496,8 @@ window.speechSynthesis.onvoiceschanged = function(){
     se não, a API do meSpeak é utilizada.
 */
 var reproduzirAudio = function(msg){
-    if(navegadorOnline == true && usarAudioNativo == true){
+    //Usa a API de áudio nativa se o navegador tem conexão a internet, ou está disponível localmente.
+    if(usarAudioNativo && (navegadorOnline || speechApiObj.localService)){
         // Cancela a execução de algum áudio em reprodução, e remove o áudio, 
         // se estiver na fila de reprodução.
         window.speechSynthesis.cancel();
@@ -509,7 +541,7 @@ var construirCheckboxes = function(){
 }
 
 /*
-    Chamado cada vez que o navegador muda a conexão.
+    Chamado a cada vez que o navegador muda o estado de conexão.
 */
 var atualizarStatusOnline = function(){
     if(navigator.onLine){
@@ -517,5 +549,6 @@ var atualizarStatusOnline = function(){
     }else{
         navegadorOnline = false;
     }
+    
     console.log('navegador online: ' + navegadorOnline);
 }
