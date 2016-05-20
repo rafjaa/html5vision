@@ -101,7 +101,7 @@ i{
 }
 .modal {
     width: 85%;
-    height: 60%;
+    height: 80%;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -145,16 +145,6 @@ i{
 #config-div h2{
   font-size:16px;
 }
-
-a#aplicar {
-    color: #fff;
-    border-radius: 5%;
-    padding: 5px;
-    text-shadow: 0px 0px 5px #000;
-    width: 45%;
-    display: inline-block;
-}
-
 #overlay {
     width: 100vw;
     height: 100vh;
@@ -176,18 +166,35 @@ a#aplicar {
 }
 
 /* Configurações do modal */
+#modal-conteudo *{
+  text-align:center;
+}
 #modal-config{
   transition: -webkit-transform 0.4s;
   transition: transform 0.4s;
   transition: transform 0.4s, -webkit-transform 0.4s;
 }
 .hidden-modal{
-  -webkit-transform: translate(-50%,-200%);
-          transform: translate(-50%,-200%);
+  -webkit-transform: translate(-50%,-250%);
+          transform: translate(-50%,-250%);
 }
-a#aplicar{
+
+#modal-config button[type='button']{
+  color: #fff;
   border: 1px solid;
+  border-radius: 5%;
+  background-color: transparent;
+  padding: 5px;
+  text-shadow: 0px 0px 5px #000;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 15px;
 }
+
+button#aplicar{
+  width: 45%;
+}
+
 #close-li{
   float:right;
   text-align: right;
@@ -195,9 +202,33 @@ a#aplicar{
 #config-div h2{
   font-size: 18px;
 }
-#checkboxes label {
+#modal-config button[type="button"]:active{
+  color: gray;
+  border: 1px solid gray;
+  background-color: white;
+  text-shadow: none;
+}
+#modal-conteudo label {
   font-size: 16px;
 }
-#checkboxes input {
+#modal-conteudo button {
     margin: 0.5em 0.2em;
+}
+/* Div precisão de detecção*/
+div#precisao-deteccao {
+  text-align: center;
+}
+div#precisao-deteccao p, div#precisao-deteccao button{
+  display:inline;
+}
+div#precisao-deteccao p{
+  margin-left:.2em;
+  margin-right:.2em;
+}
+#precisao-deteccao button[type="button"] {
+  padding: .3em;
+  width: 13%;
+}
+span#valor-precisao {
+    margin: 0 .2em;
 }

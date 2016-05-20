@@ -1,8 +1,8 @@
+//localStorage.clear();
+
 // FIXIT: ao iniciar, evitar que uma frase seja falada antes da mensagem 
 // de inicialização (usando API de síntese de fala).
 
-//TODO: trocar select do genero da voz para inputs de radio
-//TODO: adicionar label com a precisão de detecção com dois botôes ( + e - )
 //TODO: modificar tela de configurações, aumentar a altura (verificar 85% de altura)
 
 $(document).ready(function(){    
@@ -15,12 +15,8 @@ $(document).ready(function(){
     // Evento de clique na tela (pause/continue)
     video_pausado = false;
 
-    var detector = [];
-   
-    var ultimo_obj_detectado = ''; 
-    var deteccao_pausada = true;
-
-    timeoutDeteccao = undefined, timeoutDeteccaoQRCode = undefined;
+    timeoutDeteccao = undefined;
+    timeoutDeteccaoQRCode = undefined;
 
     /*
         Parametros de áudio padrão. O único valor que poderá ser alterado pelo
@@ -30,6 +26,9 @@ $(document).ready(function(){
     */
     parametros_audio = {variant: 'f2', speed: 160, pitch: 60, amplitude: 100};
 
+    var detector = [];
+    var ultimo_obj_detectado = ''; 
+    var deteccao_pausada = true;
     var parametros_conf = carregarConfiguracoes();
     
     atualizarStatusOnline();
@@ -38,14 +37,11 @@ $(document).ready(function(){
     construirCheckboxes();
     configurarMenuConf(parametros_conf);
     // Inizializa a variável abaixo após construir os checkboxes.
-    selectGeneroDaVoz = $('#conf-vozes');
+    divGeneroDaVoz = $('#conf-vozes');
 
     //Troca a variação de voz, de acordo com o selecionado
     trocaVariacaoDeAudio(parametros_conf.voz);    
 
-    var PRECISAO_MINIMA_DETECCAO = 7;
-    var PRECISAO_MINIMA_DETECCAO_PADRAO = 7;
-   
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
     canvas.hidden = true;
@@ -66,17 +62,19 @@ $(document).ready(function(){
         Traz a tela de configurações ao clicar no botão.
     */
     $('#config-btn').click(function(){
+        // Trata os eventos de clique nos botões '+' e '-', de configuração de precisão.
+        trataConfiruracaoDePrecisao();
 
         // Ao abrir a tela de configurações, pausa as detecções de objetos e códigos QR.
         clearTimeout(timeoutDeteccao);
         clearTimeout(timeoutDeteccaoQRCode);
         deteccao_pausada = true;
 
-        // Exibe o select do genero da voz apenas se o audio nativo está disponivel
+        // Exibe o div do genero da voz apenas se o audio nativo está disponivel
         if(usarAudioNativo && (navegadorOnline || speechApiObj.localService)){
-            selectGeneroDaVoz.hide(0);
+            divGeneroDaVoz.hide(0);
         }else{
-            selectGeneroDaVoz.show(0);
+            divGeneroDaVoz.show(0);
         }
 
         if($('#modal-config').hasClass('hidden-modal')){
@@ -121,15 +119,17 @@ $(document).ready(function(){
     */
     $("#aplicar").click(function(){
         deteccao_pausada = false;
-
-        var select_opcoes = document.getElementById('select-voz');
-
-        var genero_selecionado = select_opcoes.options[select_opcoes.selectedIndex].value;
         
-        parametros_conf.voz = genero_selecionado;
-
+        var radio_masc = document.getElementById('masculino');
+        var radio_fem = document.getElementById('feminino');
         var keys = Object.keys(parametros_conf.objetos_a_detectar);
         var length = keys.length;
+
+        if(radio_masc.checked)
+            var genero_selecionado = radio_masc.value;
+        else{
+            var genero_selecionado = radio_fem.value;
+        }
 
         for (var i = 0; i < length; i++){
             var key = keys[i];
@@ -137,6 +137,9 @@ $(document).ready(function(){
 
             parametros_conf.objetos_a_detectar[key] = elem.checked;
         }
+
+        parametros_conf.precisao_minima_deteccao = parseInt(document.getElementById('valor-precisao').innerHTML);
+        parametros_conf.voz = genero_selecionado;
         
         salvarConfiguracoes(parametros_conf);
         fechaModalDeConfiguracoes();
@@ -276,7 +279,7 @@ $(document).ready(function(){
             var coords = detector[i].detect(video,1);
             if(coords.length == 0) 
                 continue;
-            if(coords[0][4] < PRECISAO_MINIMA_DETECCAO) 
+            if(coords[0][4] < parametros_conf.precisao_minima_deteccao)
                 continue;
             
             var obj = coords[0];
@@ -325,18 +328,22 @@ speechApiObj = undefined;
 usarAudioNativo = false;
 // Variável auxiliar para verificar se o navegador está conectado a internet.
 navegadorOnline = undefined;
-// Armazena a referência da div contendo o select de voz, que será escondido quando o meSpeak não for utilizado.
-selectGeneroDaVoz = undefined;
+// Armazena a referência da div contendo o div de configuração de gênero de voz,
+// que será escondido quando o meSpeak não for utilizado.
+divGeneroDaVoz = undefined;
 /*
     Configura os inputs do menu de configurações com as informações
-    continas na variável passada por parâmetro.
+    contidas na variável passada por parâmetro.
 */
 var configurarMenuConf = function(conf){
-    //Carrega o gênero da voz
-    document.getElementById(conf.voz).selected = true;
+    // Carrega o valor da precisão de detecção
+    document.getElementById('valor-precisao').innerHTML = conf.precisao_minima_deteccao;
 
-    //Carrega as checkboxes
-    var keys = Object.keys(conf.objetos_a_detectar);feminina
+    // Carrega o gênero da voz
+    document.getElementById(conf.voz).checked = true;
+
+    // Carrega as checkboxes
+    var keys = Object.keys(conf.objetos_a_detectar);
 
     for (var i = 0; i < keys.length; i++){
         var key = keys[i];
@@ -350,7 +357,7 @@ var configurarMenuConf = function(conf){
     Se não for a primeira vez, e houver localStorage, as configurações no localStorage são recuperadas.
 */
 var carregarConfiguracoes = function(){
-    var parametros_conf_padrao = {voz:'feminina',objetos_a_detectar:[{'qrcode':true}]};
+    var parametros_conf_padrao = {voz:'feminino',precisao_minima_deteccao: 70,objetos_a_detectar:[{'qrcode':true}]};
     var parametros_conf;
     var length = haar_cascade.length;
     
@@ -363,15 +370,15 @@ var carregarConfiguracoes = function(){
     parametros_conf_padrao.objetos_a_detectar = json;
 
     if(window.localStorage){
-        if(localStorage['parametros_conf'] === undefined){
+        if(localStorage['parametros_conf']){
+            //Carregando do localStorage
+            parametros_conf = JSON.parse(window.localStorage['parametros_conf']);
+            console.log('Carregado do localStorage');
+        }else{
             //Salvando no localStorage
             parametros_conf = parametros_conf_padrao;
             window.localStorage['parametros_conf'] = JSON.stringify(parametros_conf);
             console.log('Salvo no localStorage');
-        }else{
-            //Carregando do localStorage
-            parametros_conf = JSON.parse(window.localStorage['parametros_conf']);
-            console.log('Carregado do localStorage');
         }
     }else{
         //Sem suporte a localStorage. As configurações padrão são carregadas.
@@ -418,7 +425,7 @@ var fechaModalDeConfiguracoes = function(){
 }
 
 /*
-    Recebe como parametro o id do objeto selecionado no select de
+    Recebe como parametro o id do objeto selecionado no div de
     gênero da voz, e troca o genero da voz com o valor do atributo
     contido na tag (data attribute), a variação da voz.
 */
@@ -537,7 +544,7 @@ var construirCheckboxes = function(){
     var divcheckboxes = $('#checkboxes');
     for (var i =0;i< haar_cascade.length; i++){
 
-        var novoinput = $('<input checobjetos_a_detectar:ked type="checkbox" name="objetos-detectados" id="' + 
+        var novoinput = $('<input checked type="checkbox" name="objetos-detectados" id="' + 
             haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
             '"> ' + haar_cascade[i].descricao +'</label><br/>');
 
@@ -556,4 +563,60 @@ var atualizarStatusOnline = function(){
     }
     
     console.log('navegador online: ' + navegadorOnline);
+}
+
+/*
+    Trata os eventos de clique nos botões '+' e '-' na tela de configurações.
+*/
+var trataConfiruracaoDePrecisao = function(){
+    var elem_valor_precisao = document.getElementById('valor-precisao');
+    var elem_decrementa_precisao = document.getElementById('decrementa-precisao');
+    var elem_incrementa_precisao = document.getElementById('incrementa-precisao');
+    var value;
+    var limite_inferior_deteccao = 1;
+    var limite_superior_deteccao = 100;
+
+    elem_incrementa_precisao.onclick = function(){
+        value = parseInt(elem_valor_precisao.innerHTML);
+        var new_value = value + 1;
+
+        // Se o valor atual é menor que o limite superior, o valor é incrementado
+        if (value < limite_superior_deteccao){
+            elem_valor_precisao.innerHTML = new_value;
+
+            // Se o valor antigo era igual ao limite inferior, o botão '-' é 'desbloqueado'
+            if(value == limite_inferior_deteccao){
+                elem_decrementa_precisao.style.opacity = 1;
+                elem_decrementa_precisao.disabled = false;
+            }
+        }
+
+        // Se o novo valor é igual ao limite superior, o botão '+' é 'bloqueado'.
+        if (new_value == limite_superior_deteccao){
+            this.style.opacity = '0.3';
+            this.disabled = true;
+        }
+    }
+
+    elem_decrementa_precisao.onclick = function(){
+        value = parseInt(elem_valor_precisao.innerHTML);
+        var new_value = value - 1;
+
+        // Se o valor atual é maior que o limite inferior, o valor é decrementado
+        if (value > limite_inferior_deteccao){
+            elem_valor_precisao.innerHTML = new_value;
+
+            // Se o valor antigo era igual ao valor máximo, o botão '+' deve ser 'desbloqueado'
+            if(value == limite_superior_deteccao){
+                elem_incrementa_precisao.style.opacity = 1;
+                elem_incrementa_precisao.disabled = false;
+            }
+        }
+
+        // Se o novo valor é igual ao limite inferior, o botão '-' é 'bloqueado'
+        if (new_value == limite_inferior_deteccao){
+            this.style.opacity = '0.3';
+            this.disabled = true;
+        }
+    }
 }

@@ -61,13 +61,23 @@
 			<div id="modal-conteudo">
 				<h1>Configurações</h1>
 				<div id="config-div">
-					<!-- select para a voz, checkbox para objetos detectados, fazer dinamicamente -->
+
+					<div id="precisao-deteccao">
+						<h2>Precisão de detecção</h2>
+
+						<button type="button" id="incrementa-precisao">+</button>
+						<p><span id="valor-precisao"></span>%</p>
+						<button type="button" id="decrementa-precisao">-</button>
+					</div>
+
 					<div id="conf-vozes">
 						<h2>Gênero da voz</h2>
-						<select id="select-voz">
-							<option id="masculina" value="masculina" data-variacao-voz="m2">Masculina</option>
-							<option id="feminina" value="feminina" data-variacao-voz="f2">Feminina</option>
-						</select>
+
+						<input type="radio" name="genero-voz" id="masculino" value="masculino" data-variacao-voz="m2">
+						<label for="masculino">Masculino</label>
+
+						<input type="radio" name="genero-voz" id="feminino" value="feminino" data-variacao-voz="f2">
+						<label for="feminino">Feminino</label>
 					</div>
 		
 					<div id="checkboxes">
@@ -79,7 +89,7 @@
 				</div>
 			</div>
 			<div id="modal-footer">
-				<a href="#" id="aplicar" >Aplicar</a>
+				<button type="button" id="aplicar">Aplicar</button>
 			</div>
 		</div>
 		
