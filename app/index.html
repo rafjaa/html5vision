@@ -57,8 +57,23 @@
 	
 	<main>
 		<div id="overlay" class="hidden"></div>
+
+		<div id="modal-info" class="modal hidden-modal">
+			<div class="modal-conteudo">
+				<h1>Sobre</h1>
+				<p>
+					Trabalho elaborado por alunos do curso de Tecnologia em Sistemas
+				 	para Internet do Instituto de Educação, Ciência e Tecnologia do Sudeste
+				 	de Minas Gerais - Campus Barbacena
+				</p>
+			</div>
+			<div class="modal-footer">
+				
+			</div>
+		</div>
+
 		<div id="modal-config" class="modal hidden-modal">
-			<div id="modal-conteudo">
+			<div class="modal-conteudo">
 				<h1>Configurações</h1>
 				<div id="config-div">
 
@@ -75,6 +90,8 @@
 
 						<input type="radio" name="genero-voz" id="masculino" value="masculino" data-variacao-voz="m2">
 						<label for="masculino">Masculino</label>
+						
+						<br/>
 
 						<input type="radio" name="genero-voz" id="feminino" value="feminino" data-variacao-voz="f2">
 						<label for="feminino">Feminino</label>
@@ -88,7 +105,7 @@
 					</div>
 				</div>
 			</div>
-			<div id="modal-footer">
+			<div class="modal-footer">
 				<button type="button" id="aplicar">Aplicar</button>
 			</div>
 		</div>

@@ -1,9 +1,5 @@
-//localStorage.clear();
-
 // FIXIT: ao iniciar, evitar que uma frase seja falada antes da mensagem 
 // de inicialização (usando API de síntese de fala).
-
-//TODO: modificar tela de configurações, aumentar a altura (verificar 85% de altura)
 
 $(document).ready(function(){    
     window.addEventListener('online',atualizarStatusOnline);
@@ -102,16 +98,49 @@ $(document).ready(function(){
         }
     });
 
+    // Janela de informações do aplicativo
+    document.getElementById('info-btn').onclick = function(){
+        if($('#modal-info').hasClass('hidden-modal')){
+            
+            $('#modal-info').removeClass('hidden-modal').addClass('visible');
+            $('#overlay').removeClass('hidden').addClass('visible');
+
+            $( "#config-btn" ).fadeOut( 0.8, function() {
+                // Animação completa.
+            });
+            $( "#info-btn" ).fadeOut( 0.8, function() {
+                // Animação completa.
+            });
+            $( "#fullscreen-btn" ).fadeOut( 0.8, function() {
+                // Animação completa.
+            });
+            $( "#close-li").removeClass("hidden");
+
+        }else{
+            $('#modal-info').removeClass('visible');
+            $('#overlay').removeClass('visible');
+            $('#modal-info').addClass('hidden-modal');
+            $('#overlay').addClass('hidden');
+            $( "#close-li").addClass("hidden");
+        }
+    }
+
     /*
         Fecha a tela de configurações ao clicar no botão e cancela as alterações realizadas.
     */
     $("#close-modal-btn").click(function(){
+        if(!$('#modal-config').hasClass('hidden-modal')){
+            fechaModal('modal-config');
+
+            //Se o usuário cancela a operação, as configurações anteriores são carregadas
+            configurarMenuConf(parametros_conf);    
+
+        }else{ // Fecha o modal de informação
+            fechaModal('modal-info');
+        }
+
+
         deteccao_pausada = false;
-
-        fechaModalDeConfiguracoes();
-
-        //Se o usuário cancela a operação, as configurações anteriores são carregadas
-        configurarMenuConf(parametros_conf);
     });
 
     /*
@@ -142,14 +171,9 @@ $(document).ready(function(){
         parametros_conf.voz = genero_selecionado;
         
         salvarConfiguracoes(parametros_conf);
-        fechaModalDeConfiguracoes();
+        fechaModal('modal-config');
         trocaVariacaoDeAudio(genero_selecionado);
     });
-
-    // Janela de informações do aplicativo
-    document.getElementById('info-btn').onclick = function(){
-        //alert('info clicked');
-    }
 
     $('#corpo').click(function(){
         reproduzindo_audio = true;
@@ -400,12 +424,14 @@ var salvarConfiguracoes = function(conf){
 }
 
 /*
-    Fecha o modal de configurações.
+    Fecha o modal relacionado ao ID passado como parâmetro.
 */
-var fechaModalDeConfiguracoes = function(){
+var fechaModal = function(id_objeto){
+    var id_objeto = '#' + id_objeto;
+
     if($("#overlay").hasClass('visible')){
 
-        $("#modal-config").removeClass('visible').addClass('hidden-modal');
+        $(id_objeto).removeClass('visible').addClass('hidden-modal');
 
         $("#overlay").removeClass('visible').delay(200).queue(function(){
             $(this).addClass('hidden').dequeue();
@@ -479,14 +505,6 @@ var inicializaAPIDeFalaNativa = function(voice){
 */
 window.speechSynthesis.onvoiceschanged = function(){
     var voices = window.speechSynthesis.getVoices();
-    
-    /*
-    //Imprimindo array de vozes
-    for(var i=0;i<voices.length;i++){
-        console.log(voices[i]);
-    }
-    */
-
     var voice = voices.filter(function(voice) {
         return voice.lang == 'pt-BR' || voice.lang == 'pt_BR';
     })[0];

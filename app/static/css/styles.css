@@ -122,14 +122,14 @@ i{
     text-shadow: 0 0 5px black;
     font-weight: bold;
 }
-#modal-conteudo{
+.modal-conteudo{
   -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
           flex-grow: 1;
   padding: 5px;
 }
-#config-div{
-  margin: 1em 0;
+.modal-conteudo h1{
+  margin-bottom: .5em;
 }
 #config-div label{
   font-size:12px;
@@ -166,10 +166,10 @@ i{
 }
 
 /* Configurações do modal */
-#modal-conteudo *{
+.modal-conteudo *{
   text-align:center;
 }
-#modal-config{
+.modal{
   transition: -webkit-transform 0.4s;
   transition: transform 0.4s;
   transition: transform 0.4s, -webkit-transform 0.4s;
@@ -208,10 +208,10 @@ button#aplicar{
   background-color: white;
   text-shadow: none;
 }
-#modal-conteudo label {
+.modal-conteudo label {
   font-size: 16px;
 }
-#modal-conteudo button {
+.modal-conteudo button {
     margin: 0.5em 0.2em;
 }
 /* Div precisão de detecção*/
