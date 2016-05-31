@@ -169,7 +169,6 @@ i{
 .hidden-modal{
   transform: translate(-50%,-250%);
 }
-
 #modal-config button[type='button']{
   color: #fff;
   border: 1px solid;
@@ -181,7 +180,9 @@ i{
   font-weight: bold;
   font-size: 15px;
 }
-
+#config-div input{
+  margin: 5px 0;
+}
 button#aplicar{
   width: 45%;
 }
@@ -205,6 +206,11 @@ button#aplicar{
 .modal-conteudo button {
     margin: 0.5em 0.2em;
 }
+#modal-config{
+  max-width: 400px;
+  max-height: 600px;
+}
+
 /* Div precisão de detecção*/
 div#precisao-deteccao {
   text-align: center;
@@ -229,4 +235,27 @@ div#checkboxes {
     max-height: 80px;
     width: 100%;
     overflow: auto;
+}
+
+@media(min-width: 425px){
+  .modal-conteudo h1{
+    font-size: 40px;
+  }
+  #config-div h2{
+    font-size: 24px;
+  }
+  #precisao-deteccao p{
+    font-size: 22px;
+  }
+  #config-div label{
+    font-size: 16px;
+  }
+  #modal-config button[type='button']{
+    border: 2px solid #fff;
+    font-size: 18px;
+  }
+  div#checkboxes{
+    max-height: 120px;
+    height: 120px;
+  }
 }
