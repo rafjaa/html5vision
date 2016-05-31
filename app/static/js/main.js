@@ -381,7 +381,7 @@ var configurarMenuConf = function(conf){
     Se não for a primeira vez, e houver localStorage, as configurações no localStorage são recuperadas.
 */
 var carregarConfiguracoes = function(){
-    var parametros_conf_padrao = {voz:'feminino',precisao_minima_deteccao: 70,objetos_a_detectar:[{'qrcode':true}]};
+    var parametros_conf_padrao = {voz:'feminino',precisao_minima_deteccao: 30,objetos_a_detectar:[{'qrcode':true}],versao: 1};
     var parametros_conf;
     var length = haar_cascade.length;
     
@@ -394,7 +394,7 @@ var carregarConfiguracoes = function(){
     parametros_conf_padrao.objetos_a_detectar = json;
 
     if(window.localStorage){
-        if(localStorage['parametros_conf']){
+        if(localStorage['parametros_conf'] != undefined && verificaVersaoLocalStorage(localStorage['parametros_conf'],parametros_conf_padrao.versao)){
             //Carregando do localStorage
             parametros_conf = JSON.parse(window.localStorage['parametros_conf']);
             console.log('Carregado do localStorage');
@@ -636,5 +636,22 @@ var trataConfiruracaoDePrecisao = function(){
             this.style.opacity = '0.3';
             this.disabled = true;
         }
+    }
+}
+
+/*
+    Verifica se o campo da versão presente no localStorage está atualizado com o valor
+    passado por parâmetro.
+*/
+var verificaVersaoLocalStorage = function(obj,valor_da_versao){
+    try{
+        var obj = JSON.parse(obj);
+        var versao = obj.versao;
+        if (versao && versao == valor_da_versao){
+            console.log('versao atualizada.');
+            return true;
+        }
+    }catch(e){
+        return false;
     }
 }
