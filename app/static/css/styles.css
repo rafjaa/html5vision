@@ -211,6 +211,29 @@ button#aplicar{
   max-height: 600px;
 }
 
+.modal-conteudo h1 {
+  margin-bottom: .5em;
+}
+.modal-conteudo div {
+    margin-bottom: .2em;
+}
+.modal-conteudo div:last-child {
+    -ms-flex-positive: 2;
+        flex-grow: 2;
+  overflow: auto;
+  
+}
+#modal-config .modal-conteudo {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-flow: column nowrap;
+        flex-flow: column nowrap;
+    -ms-flex-pack: distribute;
+        justify-content: space-around;
+        -ms-flex-align: stretch;
+            align-items: stretch;
+}
+
 /* Div precisão de detecção*/
 div#precisao-deteccao {
   text-align: center;
@@ -232,7 +255,7 @@ span#valor-precisao {
 
 /* Div objetos para detectar */
 div#checkboxes {
-    max-height: 80px;
+   /* max-height: 80px;*/
     width: 100%;
     overflow: auto;
 }
@@ -255,7 +278,8 @@ div#checkboxes {
     font-size: 18px;
   }
   div#checkboxes{
-    max-height: 120px;
+  /*  max-height: 120px;
     height: 120px;
+    */
   }
 }
