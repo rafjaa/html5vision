@@ -113,10 +113,8 @@ i{
     padding: 5px;
     display: -ms-flexbox;
     display: flex;
-    
-            -ms-flex-direction: column;
-    
-                flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
     color: white;
     text-shadow: 0 0 5px black;
     font-weight: bold;
@@ -124,13 +122,13 @@ i{
 .modal-conteudo{
   -ms-flex-positive: 1;
       flex-grow: 1;
-  padding: 5px;
+  padding: 5px 5px 10px;
 }
 .modal-conteudo h1{
   margin-bottom: .5em;
 }
 #config-div label{
-  font-size:12px;
+  font-size:15px;
 }
 #config-div div{
   padding:10px 0;
@@ -141,7 +139,7 @@ i{
   text-align:left;
 }
 #config-div h2{
-  font-size:16px;
+  font-size:19px;
 }
 #overlay {
     width: 100vw;
@@ -218,9 +216,6 @@ button#aplicar{
   float:right;
   text-align: right;
 }
-#config-div h2{
-  font-size: 18px;
-}
 #modal-config button[type="button"]:active{
   color: gray;
   border: 1px solid gray;
@@ -251,7 +246,7 @@ div#precisao-deteccao p{
 }
 #precisao-deteccao button[type="button"] {
   padding: .3em;
-  width: 13%;
+  width: 15%;
 }
 span#valor-precisao {
     margin: 0 .2em;
@@ -286,4 +281,12 @@ div#checkboxes {
     max-height: 120px;
     height: 120px;
   }
+}
+
+/*Itens sumindo misteriosamente em telas pequenas se estiver usando space-around.*/
+@media (max-height:500px){
+    #config-div{
+        -ms-flex-pack:start;
+            justify-content:flex-start;
+    }
 }
