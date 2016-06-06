@@ -1,6 +1,321 @@
 // FIXIT: ao iniciar, evitar que uma frase seja falada antes da mensagem 
 // de inicialização (usando API de síntese de fala).
 
+// Armazena o objeto da API de fala nativa do browser (se disponível).
+speechApiObj = undefined;
+// Recebe verdadeiro, se a APi de fala do browser com voz em português brasileiro estiver disponível.
+usarAudioNativo = false;
+// Variável auxiliar para verificar se o navegador está conectado a internet.
+navegadorOnline = undefined;
+// Armazena a referência da div contendo o div de configuração de gênero de voz,
+// que será escondido quando o meSpeak não for utilizado.
+divGeneroDaVoz = undefined;
+
+/*
+    Configura os inputs do menu de configurações com as informações
+    contidas na variável passada por parâmetro.
+*/
+var configurarMenuConf = function(conf){
+    // Carrega o valor da precisão de detecção
+    document.getElementById('valor-precisao').innerHTML = conf.precisao_minima_deteccao;
+
+    // Carrega o gênero da voz
+    document.getElementById(conf.voz).checked = true;
+
+    // Carrega as checkboxes
+    var keys = Object.keys(conf.objetos_a_detectar);
+
+    for (var i = 0; i < keys.length; i++){
+        var key = keys[i];
+        document.getElementById(key).checked = conf.objetos_a_detectar[key];
+    }
+}
+
+/*
+    Carrega as configurações iniciais do aplicativo.
+    Se for a primeira execução, salva no localStorage, se possível.
+    Se não for a primeira vez, e houver localStorage, as configurações no localStorage são recuperadas.
+*/
+var carregarConfiguracoes = function(){
+    var parametros_conf_padrao = {voz:'feminino',precisao_minima_deteccao: 30,objetos_a_detectar:[{'qrcode':true}],versao: 1};
+    var parametros_conf;
+    var length = haar_cascade.length;
+    
+    var json = {qrcode:true}
+    for(var i=0;i < length; i++){
+        json[haar_cascade[i].id] = true;
+    }
+    console.log('objetos: ',json);
+
+    parametros_conf_padrao.objetos_a_detectar = json;
+
+    if(window.localStorage){
+        if(localStorage['parametros_conf'] != undefined && verificaVersaoLocalStorage(localStorage['parametros_conf'],parametros_conf_padrao.versao)){
+            //Carregando do localStorage
+            parametros_conf = JSON.parse(window.localStorage['parametros_conf']);
+            console.log('Carregado do localStorage');
+        }else{
+            //Salvando no localStorage
+            parametros_conf = parametros_conf_padrao;
+            window.localStorage['parametros_conf'] = JSON.stringify(parametros_conf);
+            console.log('Salvo no localStorage');
+        }
+    }else{
+        //Sem suporte a localStorage. As configurações padrão são carregadas.
+        parametros_conf = parametros_conf_padrao;
+        console.log('localStorage não disponível');
+    }
+    console.log('Informações Carregadas:\n',parametros_conf);
+    return parametros_conf;
+}
+
+/*
+    Salva as configurações no localStorage, se disponível.
+*/
+var salvarConfiguracoes = function(conf){
+    if(window.localStorage){
+        window.localStorage['parametros_conf'] = JSON.stringify(conf);
+    }
+    console.log('Salvo no localStorage:\n',conf);
+}
+
+/*
+    Fecha o modal relacionado ao ID passado como parâmetro.
+*/
+var fechaModal = function(id_objeto){
+    var id_objeto = '#' + id_objeto;
+
+    if($("#overlay").hasClass('visible')){
+
+        $(id_objeto).removeClass('visible').addClass('hidden-modal');
+
+        $("#overlay").removeClass('visible').delay(200).queue(function(){
+            $(this).addClass('hidden').dequeue();
+        });
+
+        $( "#config-btn" ).fadeIn( 0.8, function() {
+            // Animation complete.
+        });
+        $( "#info-btn" ).fadeIn( 0.8, function() {
+            // Animation complete.
+        });
+        $( "#fullscreen-btn" ).fadeIn( 0.8, function() {
+            // Animation complete.
+        });
+        $( "#close-li").addClass("hidden");
+    }
+}
+
+/*
+    Recebe como parametro o id do objeto selecionado no div de
+    gênero da voz, e troca o genero da voz com o valor do atributo
+    contido na tag (data attribute), a variação da voz.
+*/
+var trocaVariacaoDeAudio = function(id_objeto){
+    parametros_audio.variant = document.getElementById(id_objeto).getAttribute('data-variacao-voz');
+    console.log('TROCA VARIACAO DE AUDIO: ',parametros_audio);
+}
+
+/*
+    Configura a API de síntese de fala, se está presente no navegador. 
+    Recebe como parâmetro a voz a ser utilizada (portugês do Brasil).
+*/
+var inicializaAPIDeFalaNativa = function(voice){
+    if (!'speechSynthesis' in window || !'SpeechSynthesisUtterance' in window){
+        console.log('speechSynthesis ou SpeechSynthesisUtterance não presente.');
+        return null;
+    }
+
+    speechApiObj = new SpeechSynthesisUtterance();
+    speechApiObj.voice = voice;
+    speechApiObj.voiceURI = voice.voiceURI || 'Google português do Brasil';
+    speechApiObj.name = voice.name || 'Google português do Brasil';
+    speechApiObj.lang = voice.lang || 'pt-BR';
+    speechApiObj.localService = voice.localService;
+    speechApiObj.volume = 1; // 0 to 1
+    speechApiObj.rate = 1; // 0.1 to 10
+    speechApiObj.pitch = 1; //0 to 2
+    speechApiObj.text = '';
+    
+
+    speechApiObj.onstart = function(e){
+        console.log('Audio "', e.utterance.text, '" iniciado.');
+        reproduzindo_audio = true;
+    };
+    speechApiObj.onend = function(e) {
+      console.log('Audio "',e.utterance.text,'" reproduzido.');
+      reproduzindo_audio = false;
+    };
+    speechApiObj.onerror = function(e) {
+      console.log('Erro na reprodução de "',e.utterance.text, '"');
+      reproduzindo_audio = false;
+      usarAudioNativo = false;
+    };
+    console.log('API de fala iniciada:\n',speechApiObj);
+}
+
+/*
+    As vozes da API de síntese de fala são carregadas de forma assíncrona.
+    Esta função é chamada quando estas vozes são carregadas.
+    Se houver voz em português do Brasil disponível, inicializa os parâmetros da API de síntese de fala.
+    O teste é realizado para evitar erros em navegadores que não possuem a API de fala.
+*/
+if ('speechSynthesis' in window){
+    window.speechSynthesis.onvoiceschanged = function(){
+        var voices = window.speechSynthesis.getVoices();
+        var voice = voices.filter(function(voice) {
+            return voice.lang == 'pt-BR' || voice.lang == 'pt_BR';
+        })[0];
+        
+        if(!voice){
+            usarAudioNativo = false;
+            console.log('Voz nativa não carregada')
+            return;
+        }
+        
+        console.log('Voz nativa carregada: ', voice);
+
+        usarAudioNativo = true;
+        inicializaAPIDeFalaNativa(voice);
+    }
+}
+
+
+/*
+    Reproduz as mensagens do aplicativo. Se estiver disponível API de síntese de fala, esta é usada,
+    se não, a API do meSpeak é utilizada.
+*/
+var reproduzirAudio = function(msg){
+    //Usa a API de áudio nativa se o navegador tem conexão a internet, ou está disponível localmente.
+    if(usarAudioNativo && (navegadorOnline || speechApiObj.localService)){
+        // Cancela a execução de algum áudio em reprodução, e remove o áudio, 
+        // se estiver na fila de reprodução.
+        window.speechSynthesis.cancel();
+
+        speechApiObj.text = msg;
+        window.speechSynthesis.speak(speechApiObj);
+
+    }else{//Reproduzir audio usando meSpeak
+        if(!meSpeak.isConfigLoaded()){
+            meSpeak.loadConfig('static/json/mespeak_config.json');
+        }
+        
+        if (!meSpeak.isVoiceLoaded('pt')){
+            meSpeak.loadVoice('static/json/mespeak_voice_pt.json')
+        }
+
+        meSpeak.stop();
+        reproduzindo_audio = true;
+        meSpeak.speak(msg, parametros_audio, function(finalizado){
+            if(finalizado){
+                reproduzindo_audio = false;
+            }
+        });
+    }
+}
+
+/*
+    Constrói as checkboxes da tela de configurações dinamicamente
+*/
+var construirCheckboxes = function(){
+
+    var divcheckboxes = $('#checkboxes');
+    for (var i =0;i< haar_cascade.length; i++){
+
+        var novoinput = $('<input checked type="checkbox" name="objetos-detectados" id="' + 
+            haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
+            '"> ' + haar_cascade[i].descricao +'</label><br/>');
+
+        divcheckboxes.append(novoinput);
+    }
+}
+
+/*
+    Chamado a cada vez que o navegador muda o estado de conexão.
+*/
+var atualizarStatusOnline = function(){
+    if(navigator.onLine){
+        navegadorOnline = true;
+    }else{
+        navegadorOnline = false;
+    }
+    
+    console.log('navegador online: ' + navegadorOnline);
+}
+
+/*
+    Trata os eventos de clique nos botões '+' e '-' na tela de configurações.
+*/
+var trataConfiruracaoDePrecisao = function(){
+    var elem_valor_precisao = document.getElementById('valor-precisao');
+    var elem_decrementa_precisao = document.getElementById('decrementa-precisao');
+    var elem_incrementa_precisao = document.getElementById('incrementa-precisao');
+    var value;
+    var limite_inferior_deteccao = 1;
+    var limite_superior_deteccao = 100;
+
+    elem_incrementa_precisao.onclick = function(){
+        value = parseInt(elem_valor_precisao.innerHTML);
+        var new_value = value + 1;
+
+        // Se o valor atual é menor que o limite superior, o valor é incrementado
+        if (value < limite_superior_deteccao){
+            elem_valor_precisao.innerHTML = new_value;
+
+            // Se o valor antigo era igual ao limite inferior, o botão '-' é 'desbloqueado'
+            if(value == limite_inferior_deteccao){
+                elem_decrementa_precisao.style.opacity = 1;
+                elem_decrementa_precisao.disabled = false;
+            }
+        }
+
+        // Se o novo valor é igual ao limite superior, o botão '+' é 'bloqueado'.
+        if (new_value == limite_superior_deteccao){
+            this.style.opacity = '0.3';
+            this.disabled = true;
+        }
+    }
+
+    elem_decrementa_precisao.onclick = function(){
+        value = parseInt(elem_valor_precisao.innerHTML);
+        var new_value = value - 1;
+
+        // Se o valor atual é maior que o limite inferior, o valor é decrementado
+        if (value > limite_inferior_deteccao){
+            elem_valor_precisao.innerHTML = new_value;
+
+            // Se o valor antigo era igual ao valor máximo, o botão '+' deve ser 'desbloqueado'
+            if(value == limite_superior_deteccao){
+                elem_incrementa_precisao.style.opacity = 1;
+                elem_incrementa_precisao.disabled = false;
+            }
+        }
+
+        // Se o novo valor é igual ao limite inferior, o botão '-' é 'bloqueado'
+        if (new_value == limite_inferior_deteccao){
+            this.style.opacity = '0.3';
+            this.disabled = true;
+        }
+    }
+}
+
+/*
+    Verifica se o campo da versão presente no localStorage está atualizado com o valor
+    passado por parâmetro.
+*/
+var verificaVersaoLocalStorage = function(obj,valor_da_versao){
+    try{
+        var obj = JSON.parse(obj);
+        var versao = obj.versao;
+        if (versao && versao == valor_da_versao){
+            console.log('versao atualizada.');
+            return true;
+        }
+    }catch(e){
+        return false;
+    }
+}
+
 $(document).ready(function(){    
     window.addEventListener('online',atualizarStatusOnline);
     window.addEventListener('offline',atualizarStatusOnline);
@@ -101,6 +416,11 @@ $(document).ready(function(){
     // Janela de informações do aplicativo
     document.getElementById('info-btn').onclick = function(){
         if($('#modal-info').hasClass('hidden-modal')){
+
+            // Ao abrir a tela de configurações, pausa as detecções de objetos e códigos QR.
+            clearTimeout(timeoutDeteccao);
+            clearTimeout(timeoutDeteccaoQRCode);
+            deteccao_pausada = true;
             
             $('#modal-info').removeClass('hidden-modal').addClass('visible');
             $('#overlay').removeClass('hidden').addClass('visible');
@@ -345,313 +665,3 @@ $(document).ready(function(){
         }//for
     }//function()
 });
-
-// Armazena o objeto da API de fala nativa do browser (se disponível).
-speechApiObj = undefined;
-// Recebe verdadeiro, se a APi de fala do browser com voz em português brasileiro estiver disponível.
-usarAudioNativo = false;
-// Variável auxiliar para verificar se o navegador está conectado a internet.
-navegadorOnline = undefined;
-// Armazena a referência da div contendo o div de configuração de gênero de voz,
-// que será escondido quando o meSpeak não for utilizado.
-divGeneroDaVoz = undefined;
-/*
-    Configura os inputs do menu de configurações com as informações
-    contidas na variável passada por parâmetro.
-*/
-var configurarMenuConf = function(conf){
-    // Carrega o valor da precisão de detecção
-    document.getElementById('valor-precisao').innerHTML = conf.precisao_minima_deteccao;
-
-    // Carrega o gênero da voz
-    document.getElementById(conf.voz).checked = true;
-
-    // Carrega as checkboxes
-    var keys = Object.keys(conf.objetos_a_detectar);
-
-    for (var i = 0; i < keys.length; i++){
-        var key = keys[i];
-        document.getElementById(key).checked = conf.objetos_a_detectar[key];
-    }
-}
-
-/*
-    Carrega as configurações iniciais do aplicativo.
-    Se for a primeira execução, salva no localStorage, se possível.
-    Se não for a primeira vez, e houver localStorage, as configurações no localStorage são recuperadas.
-*/
-var carregarConfiguracoes = function(){
-    var parametros_conf_padrao = {voz:'feminino',precisao_minima_deteccao: 30,objetos_a_detectar:[{'qrcode':true}],versao: 1};
-    var parametros_conf;
-    var length = haar_cascade.length;
-    
-    var json = {qrcode:true}
-    for(var i=0;i < length; i++){
-        json[haar_cascade[i].id] = true;
-    }
-    console.log('objetos: ',json);
-
-    parametros_conf_padrao.objetos_a_detectar = json;
-
-    if(window.localStorage){
-        if(localStorage['parametros_conf'] != undefined && verificaVersaoLocalStorage(localStorage['parametros_conf'],parametros_conf_padrao.versao)){
-            //Carregando do localStorage
-            parametros_conf = JSON.parse(window.localStorage['parametros_conf']);
-            console.log('Carregado do localStorage');
-        }else{
-            //Salvando no localStorage
-            parametros_conf = parametros_conf_padrao;
-            window.localStorage['parametros_conf'] = JSON.stringify(parametros_conf);
-            console.log('Salvo no localStorage');
-        }
-    }else{
-        //Sem suporte a localStorage. As configurações padrão são carregadas.
-        parametros_conf = parametros_conf_padrao;
-        console.log('localStorage não disponível');
-    }
-    console.log('Informações Carregadas:\n',parametros_conf);
-    return parametros_conf;
-}
-
-/*
-    Salva as configurações no localStorage, se disponível.
-*/
-var salvarConfiguracoes = function(conf){
-    if(window.localStorage){
-        window.localStorage['parametros_conf'] = JSON.stringify(conf);
-    }
-    console.log('Salvo no localStorage:\n',conf);
-}
-
-/*
-    Fecha o modal relacionado ao ID passado como parâmetro.
-*/
-var fechaModal = function(id_objeto){
-    var id_objeto = '#' + id_objeto;
-
-    if($("#overlay").hasClass('visible')){
-
-        $(id_objeto).removeClass('visible').addClass('hidden-modal');
-
-        $("#overlay").removeClass('visible').delay(200).queue(function(){
-            $(this).addClass('hidden').dequeue();
-        });
-
-        $( "#config-btn" ).fadeIn( 0.8, function() {
-            // Animation complete.
-        });
-        $( "#info-btn" ).fadeIn( 0.8, function() {
-            // Animation complete.
-        });
-        $( "#fullscreen-btn" ).fadeIn( 0.8, function() {
-            // Animation complete.
-        });
-        $( "#close-li").addClass("hidden");
-    }
-}
-
-/*
-    Recebe como parametro o id do objeto selecionado no div de
-    gênero da voz, e troca o genero da voz com o valor do atributo
-    contido na tag (data attribute), a variação da voz.
-*/
-var trocaVariacaoDeAudio = function(id_objeto){
-    parametros_audio.variant = document.getElementById(id_objeto).getAttribute('data-variacao-voz');
-    console.log('TROCA VARIACAO DE AUDIO: ',parametros_audio);
-}
-
-/*
-    Configura a API de síntese de fala, se está presente no navegador. 
-    Recebe como parâmetro a voz a ser utilizada (portugês do Brasil).
-*/
-var inicializaAPIDeFalaNativa = function(voice){
-    if (!'speechSynthesis' in window || !'SpeechSynthesisUtterance' in window){
-        console.log('speechSynthesis ou SpeechSynthesisUtterance não presente.');
-        return null;
-    }
-
-    speechApiObj = new SpeechSynthesisUtterance();
-    speechApiObj.voice = voice;
-    speechApiObj.voiceURI = voice.voiceURI || 'Google português do Brasil';
-    speechApiObj.name = voice.name || 'Google português do Brasil';
-    speechApiObj.lang = voice.lang || 'pt-BR';
-    speechApiObj.localService = voice.localService;
-    speechApiObj.volume = 1; // 0 to 1
-    speechApiObj.rate = 1; // 0.1 to 10
-    speechApiObj.pitch = 1; //0 to 2
-    speechApiObj.text = '';
-    
-
-    speechApiObj.onstart = function(e){
-        console.log('Audio "', e.utterance.text, '" iniciado.');
-        reproduzindo_audio = true;
-    };
-    speechApiObj.onend = function(e) {
-      console.log('Audio "',e.utterance.text,'" reproduzido.');
-      reproduzindo_audio = false;
-    };
-    speechApiObj.onerror = function(e) {
-      console.log('Erro na reprodução de "',e.utterance.text, '"');
-      reproduzindo_audio = false;
-      usarAudioNativo = false;
-    };
-    console.log('API de fala iniciada:\n',speechApiObj);
-}
-
-/*
-    As vozes da API de síntese de fala são carregadas de forma assíncrona.
-    Esta função é chamada quando estas vozes são carregadas.
-    Se houver voz em português do Brasil disponível, inicializa os parâmetros da API de síntese de fala.
-*/
-window.speechSynthesis.onvoiceschanged = function(){
-    var voices = window.speechSynthesis.getVoices();
-    var voice = voices.filter(function(voice) {
-        return voice.lang == 'pt-BR' || voice.lang == 'pt_BR';
-    })[0];
-    
-    if(!voice){
-        usarAudioNativo = false;
-        console.log('Voz nativa não carregada')
-        return;
-    }
-    
-    console.log('Voz nativa carregada: ', voice);
-
-    usarAudioNativo = true;
-    inicializaAPIDeFalaNativa(voice);
-}
-
-/*
-    Reproduz as mensagens do aplicativo. Se estiver disponível API de síntese de fala, esta é usada,
-    se não, a API do meSpeak é utilizada.
-*/
-var reproduzirAudio = function(msg){
-    //Usa a API de áudio nativa se o navegador tem conexão a internet, ou está disponível localmente.
-    if(usarAudioNativo && (navegadorOnline || speechApiObj.localService)){
-        // Cancela a execução de algum áudio em reprodução, e remove o áudio, 
-        // se estiver na fila de reprodução.
-        window.speechSynthesis.cancel();
-
-        speechApiObj.text = msg;
-        window.speechSynthesis.speak(speechApiObj);
-
-    }else{//Reproduzir audio usando meSpeak
-        if(!meSpeak.isConfigLoaded()){
-            meSpeak.loadConfig('static/json/mespeak_config.json');
-        }
-        
-        if (!meSpeak.isVoiceLoaded('pt')){
-            meSpeak.loadVoice('static/json/mespeak_voice_pt.json')
-        }
-
-        meSpeak.stop();
-        reproduzindo_audio = true;
-        meSpeak.speak(msg, parametros_audio, function(finalizado){
-            if(finalizado){
-                reproduzindo_audio = false;
-            }
-        });
-    }
-}
-
-/*
-    Constrói as checkboxes da tela de configurações dinamicamente
-*/
-var construirCheckboxes = function(){
-
-    var divcheckboxes = $('#checkboxes');
-    for (var i =0;i< haar_cascade.length; i++){
-
-        var novoinput = $('<input checked type="checkbox" name="objetos-detectados" id="' + 
-            haar_cascade[i].id + '"><label for="' + haar_cascade[i].id + 
-            '"> ' + haar_cascade[i].descricao +'</label><br/>');
-
-        divcheckboxes.append(novoinput);
-    }
-}
-
-/*
-    Chamado a cada vez que o navegador muda o estado de conexão.
-*/
-var atualizarStatusOnline = function(){
-    if(navigator.onLine){
-        navegadorOnline = true;
-    }else{
-        navegadorOnline = false;
-    }
-    
-    console.log('navegador online: ' + navegadorOnline);
-}
-
-/*
-    Trata os eventos de clique nos botões '+' e '-' na tela de configurações.
-*/
-var trataConfiruracaoDePrecisao = function(){
-    var elem_valor_precisao = document.getElementById('valor-precisao');
-    var elem_decrementa_precisao = document.getElementById('decrementa-precisao');
-    var elem_incrementa_precisao = document.getElementById('incrementa-precisao');
-    var value;
-    var limite_inferior_deteccao = 1;
-    var limite_superior_deteccao = 100;
-
-    elem_incrementa_precisao.onclick = function(){
-        value = parseInt(elem_valor_precisao.innerHTML);
-        var new_value = value + 1;
-
-        // Se o valor atual é menor que o limite superior, o valor é incrementado
-        if (value < limite_superior_deteccao){
-            elem_valor_precisao.innerHTML = new_value;
-
-            // Se o valor antigo era igual ao limite inferior, o botão '-' é 'desbloqueado'
-            if(value == limite_inferior_deteccao){
-                elem_decrementa_precisao.style.opacity = 1;
-                elem_decrementa_precisao.disabled = false;
-            }
-        }
-
-        // Se o novo valor é igual ao limite superior, o botão '+' é 'bloqueado'.
-        if (new_value == limite_superior_deteccao){
-            this.style.opacity = '0.3';
-            this.disabled = true;
-        }
-    }
-
-    elem_decrementa_precisao.onclick = function(){
-        value = parseInt(elem_valor_precisao.innerHTML);
-        var new_value = value - 1;
-
-        // Se o valor atual é maior que o limite inferior, o valor é decrementado
-        if (value > limite_inferior_deteccao){
-            elem_valor_precisao.innerHTML = new_value;
-
-            // Se o valor antigo era igual ao valor máximo, o botão '+' deve ser 'desbloqueado'
-            if(value == limite_superior_deteccao){
-                elem_incrementa_precisao.style.opacity = 1;
-                elem_incrementa_precisao.disabled = false;
-            }
-        }
-
-        // Se o novo valor é igual ao limite inferior, o botão '-' é 'bloqueado'
-        if (new_value == limite_inferior_deteccao){
-            this.style.opacity = '0.3';
-            this.disabled = true;
-        }
-    }
-}
-
-/*
-    Verifica se o campo da versão presente no localStorage está atualizado com o valor
-    passado por parâmetro.
-*/
-var verificaVersaoLocalStorage = function(obj,valor_da_versao){
-    try{
-        var obj = JSON.parse(obj);
-        var versao = obj.versao;
-        if (versao && versao == valor_da_versao){
-            console.log('versao atualizada.');
-            return true;
-        }
-    }catch(e){
-        return false;
-    }
-}
