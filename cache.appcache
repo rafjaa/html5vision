@@ -3,8 +3,8 @@ CACHE MANIFEST
 
 CACHE:
 index.html
-static/icons/material_icons.woff2
 static/css/styles.min.css
+static/icons/material_icons.woff2
 static/js/detection.min.js
 static/js/main.min.js
 static/js/mespeak.js
@@ -19,4 +19,4 @@ static/fonts/roboto/Roboto-Regular.woff2
 NETWORK:
 *
 
-# hash: 6b336837b955a2f06f282cb4c22cf13f1018147a9433cd91c9e336544bcc717b
+# hash: 4b239b8ef7d4b2fbf797179f26bd9846408429c1ecc28d1fe18d39d1318b2c67
