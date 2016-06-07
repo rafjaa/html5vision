@@ -127,6 +127,15 @@ i{
 .modal-conteudo h1{
   margin-bottom: .5em;
 }
+.modal-conteudo a:link, .modal-conteudo a:visited
+{
+  color:#808080;
+  
+}
+.modal-conteudo a:active, .modal-conteudo a:hover{
+  color: #fff;
+  text-decoration:underline;
+}
 #config-div label{
   font-size:15px;
 }
@@ -254,9 +263,20 @@ span#valor-precisao {
 
 /* Div objetos para detectar */
 div#checkboxes {
-    max-height: 80px;
+    max-height: 100px;
     width: 100%;
     overflow: auto;
+}
+
+
+/* Modal de informações */
+#modal-info .modal-conteudo > p {
+    margin-bottom: 10px;
+    text-align: justify;
+}
+#modal-info{
+  max-width: 800px;
+  max-height: 600px;
 }
 
 /* Media queries*/
