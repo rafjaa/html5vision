@@ -30,8 +30,9 @@ gulp.task('autoprefixer',function(){
 
 gulp.task('browserSync',function(){
 	browserSync.init({
+		startPath:'./app',
 		server:{
-			baseDir: './app',
+			baseDir: './',
 			https: true
 		}
 	})
