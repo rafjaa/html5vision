@@ -191,17 +191,18 @@
 			<canvas id="canvas"></canvas>	
 		</div>
 
-	</main>
+	</main>	
 	
-	<script src='../node_modules/webrtc-adapter/out/adapter_no_global.js'></script>
-	<!--<script src='../node_modules/qrcode-reader/dist/browser.js'></script>-->
-
 	<!-- build:js static/js/detection.min.js  -->
-	<script src="static/js/screenfull.min.js"></script>
-	<script src="static/js/compatibility.js"></script>
+	<script src="../node_modules/screenfull/dist/screenfull.js"></script>
+	<script src='../node_modules/webrtc-adapter/out/adapter_no_global.js'></script>
+
 	<script src="static/js/objectdetect.js"></script>
 	<script src="static/js/objectdetect.classifiers.js"></script>
+	
+	<!--<script src='../node_modules/qrcode-reader/dist/browser.js'></script>-->
 	<script src="static/js/jsqrcode-combined.min.js"></script>
+	
 	<script src="static/js/classificadores.js"></script>
 	<!-- endbuild -->
 	
@@ -210,7 +211,9 @@
 	<!-- endbuild -->
 
 	<!-- build:js static/js/main.min.js -->
-	<script src="static/js/jquery.js"></script>
+	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="../node_modules/jquery-migrate/dist/jquery-migrate.js"></script>
+	
 	<script src="static/js/main.js"></script>
 	<!-- endbuild -->
 </body>

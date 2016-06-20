@@ -617,7 +617,7 @@ $(document).ready(function(){
             video.hidden = false
             
             if (deteccao_pausada == false){
-            
+
                 ctx.drawImage(video, 0, 0,canvas.width,canvas.height);            
                 data = ctx.getImageData(0,0,canvas.width,canvas.height);
                     
@@ -687,23 +687,33 @@ $(document).ready(function(){
                     obj[3] *= video.videoHeight / detectores[i].canvas.height;
 
                     ctx.drawImage(video, 0, 0);
+
+                    ctx.font = '25px Roboto';
+                    ctx.fillStyle = 'rgb(255,0,0)';
+
+                    ctx.shadowColor = 'black';
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
                     ctx.strokeStyle = 'rgba(255,0,0,1)';
                     ctx.lineWidth = '4';
+
                     ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
+
+                    var descricao = haar_cascade[i]['descricao'];
+                    ctx.fillText(descricao, obj[0], obj[1] + obj[3] + 25);
                         
                     if(!reproduzindo_audio){
                         reproduzirAudio(haar_cascade[i]['descricao']);
                         //ultimo_obj_detectado = descricao; 
                         deteccao_pausada = true;
                         timeoutDeteccao = setTimeout(function(){
-                            deteccao_pausada = false;   
+                            deteccao_pausada = false;
                         },5000);
                     }
 
                 }// for
 
             }// deteccao_pausada == false
-
             
             
             if (App.videoEl.paused == false)
