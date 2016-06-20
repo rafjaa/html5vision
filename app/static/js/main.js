@@ -11,6 +11,10 @@ navegadorOnline = undefined;
 // que será escondido quando o meSpeak não for utilizado.
 divGeneroDaVoz = undefined;
 
+deteccao_pausada = false;
+
+parametros_conf = undefined;
+
 /*
     Configura os inputs do menu de configurações com as informações
     contidas na variável passada por parâmetro.
@@ -339,8 +343,7 @@ $(document).ready(function(){
 
     var detector = [];
     var ultimo_obj_detectado = ''; 
-    var deteccao_pausada = true;
-    var parametros_conf = carregarConfiguracoes();
+    parametros_conf = carregarConfiguracoes();
     
     atualizarStatusOnline();
     
@@ -353,12 +356,14 @@ $(document).ready(function(){
     //Troca a variação de voz, de acordo com o selecionado
     trocaVariacaoDeAudio(parametros_conf.voz);    
 
+    /*
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
     canvas.hidden = true;
     ctx = canvas.getContext( '2d' );
     ctx.scale(.3,.3);
- 
+    */
+
     /*
         Posterga a reprodução da mensagem de inicialização, para dar tempo de a voz
         da API de síntese de áudio ser carregada.
@@ -467,32 +472,7 @@ $(document).ready(function(){
         Salva as configurações na variável global parametros_conf e no local Storage se possível.
     */
     $("#aplicar").click(function(){
-        deteccao_pausada = false;
         
-        var radio_masc = document.getElementById('masculino');
-        var radio_fem = document.getElementById('feminino');
-        var keys = Object.keys(parametros_conf.objetos_a_detectar);
-        var length = keys.length;
-
-        if(radio_masc.checked)
-            var genero_selecionado = radio_masc.value;
-        else{
-            var genero_selecionado = radio_fem.value;
-        }
-
-        for (var i = 0; i < length; i++){
-            var key = keys[i];
-            var elem = document.getElementById(key);
-
-            parametros_conf.objetos_a_detectar[key] = elem.checked;
-        }
-
-        parametros_conf.precisao_minima_deteccao = parseInt(document.getElementById('valor-precisao').innerHTML);
-        parametros_conf.voz = genero_selecionado;
-        
-        salvarConfiguracoes(parametros_conf);
-        fechaModal('modal-config');
-        trocaVariacaoDeAudio(genero_selecionado);
     });
 
     $('#corpo').click(function(){
@@ -520,148 +500,249 @@ $(document).ready(function(){
             fullscreen_toggle.html('fullscreen_exit');
     });
 
-    var gotSources = function(sourceInfos){
-        id_source = null;
-
-        for (var i = 0; i != sourceInfos.length; ++i){
-            var sourceInfo = sourceInfos[i];
-            if(sourceInfo.kind != 'audio'){
-                id_source = sourceInfo.id;
-            }
-        }
-
-        try{
-            if(id_source == null){
-                var parametros = {video: true};
-            } else{
-                var parametros = {video: {optional: [{sourceId: id_source}]}};
-            }
-            compatibility.getUserMedia(parametros, function(stream){
-                try{
-                    video.src = compatibility.URL.createObjectURL(stream);
-                }catch(error){
-                    video.src = stream;
-                }
-                compatibility.requestAnimationFrame(play);
-
-            }, function(error){
-                //alert('Não foi possível acessar a câmera');
-            });
-
-        }catch(error) {
-            alert('Ocorreu um erro: ' + error);
-        }
-    }//gotSources
-
-    // Se houver mais de uma câmera, obtém a frontal
-    if (typeof MediaStreamTrack === 'undefined'){
-        gotSources([]);
-    } else {
-        MediaStreamTrack.getSources(gotSources);
-    }                
-    
-    play = function(){
-        compatibility.requestAnimationFrame(play);
-        
-        if(video_pausado){
-            if(!video.paused){
-                video.pause();
-            }
-            return;
-        }else{
-            if (video.paused){ 
-                video.play();
-            }
-        }
-        
-        if(video.readyState !== video.HAVE_ENOUGH_DATA)
-            return;
-        canvas.hidden = true;
-        video.hidden = false;
-
-        if(deteccao_pausada == true){
-            return;
-        }
-        
-        if(reproduzindo_audio == false){
-            var dados  = ''; 
-            ctx.drawImage(video, 0, 0);
-
-            
-            if(parametros_conf.objetos_a_detectar['qrcode']){
-                //Detectando QR Codes
-                try{
-                    var dados = qrcode.decode();
-                    reproduzirAudio(dados);
-                    deteccao_pausada = true;
-                    timeoutDeteccaoQRCode = setTimeout(function(){
-                        deteccao_pausada = false;
-                    },3000);
-                }catch(e){
-                   console.log('Erro ao decodificar QRCode: ' + e);
-                }
-            }
-        }
-        
-        var width = ~~(80 * video.videoWidth / video.videoHeight), height = 80 ;
-        for(i in haar_cascade){
-            if(!detector[i])
-                detector[i] = new objectdetect.detector(width, height, 1.1, haar_cascade[i]['classifier']);
-        }//for  
-        
-        for(i in haar_cascade){
-            if(typeof(detector[i]) == 'function') continue;
-
-            //Pula a detecção do objeto que está desativado nas configurações
-            if(parametros_conf.objetos_a_detectar[haar_cascade[i].id] === false){
-              //  console.log('parando a execucao corrente\n'+
-              //      'parametros_conf:',parametros_conf.objetos_a_detectar[haar_cascade[i].id],
-              //      'haar_cascade:',haar_cascade[i].id)
-                continue;
-            }
-                        
-            var coords = detector[i].detect(video,1);
-            if(coords.length == 0) 
-                continue;
-            if(coords[0][4] < parametros_conf.precisao_minima_deteccao)
-                continue;
-            
-            var obj = coords[0];
-
-            video.hidden = true;
-            canvas.hidden = false;
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-        
-            //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
-            obj[0] *= video.videoWidth / detector[i].canvas.width;
-            obj[1] *= video.videoHeight / detector[i].canvas.height;
-            obj[2] *= video.videoWidth / detector[i].canvas.width;
-            obj[3] *= video.videoHeight / detector[i].canvas.height;
-
-            ctx.drawImage(video, 0, 0);
-            ctx.strokeStyle = 'rgba(255,0,0,1)';
-            ctx.lineWidth = '4';
-            ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
-
-            var descricao = haar_cascade[i]['descricao'];
-            ctx.font = '25px Roboto'; 
-            ctx.fillStyle = 'rgb(255,0,0)';
-            
-            ctx.shadowColor = 'black';
-            ctx.shadowOffsetX = 1;
-            ctx.shadowOffsetY = 1;
-            ctx.fillText(descricao, obj[0], obj[1] + obj[3] + 25);
-        
-            if(!reproduzindo_audio){
-                console.log('reproduzindo audio da deteccao de: ' + haar_cascade[i]['descricao']);
-                reproduzirAudio(haar_cascade[i]['descricao']);
-                ultimo_obj_detectado = descricao; 
-                deteccao_pausada = true;
-                timeoutDeteccao = setTimeout(function(){
-                    deteccao_pausada = false;   
-                },5000);
-            }
-        }//for
-    }//function()
 });
+
+
+
+
+(function () {
+    'use strict';
+    
+    var App = {
+
+        init: function(){
+
+            App.configuracoes = carregarConfiguracoes();
+            
+            var aplicarConfiguracoesEl = document.getElementById('aplicar');
+            aplicarConfiguracoesEl.addEventListener('click',App.aplicarConfiguracoes);              
+
+            navigator.mediaDevices.getUserMedia(App.videoConstraints)
+                .then(App.mediaStream)
+                .catch(App.handleError);
+        },
+        
+        videoConstraints: {
+            audio: false, 
+            video: {
+              width: {
+                ideal: 640,
+                max: 1280
+              },
+              height: {
+                ideal: 480,
+                max: 720
+              },
+              facingMode:{ideal:'environment'},
+              //facingMode: {exact: 'environment'}, //ou obtêm a câmera traseira, ou não obtêm nada.
+              frameRate: {
+                ideal: 24
+              }
+            }
+        },
+
+        mediaStream: function (stream) {
+           
+            var videoEl = document.getElementById('video');            
+            var canvasEl = document.getElementById('canvas');
+            var corpoEl = document.getElementById('corpo');
+            var ctx = canvasEl.getContext( '2d' );
+            //var qrReader = new QrCode();
+
+            videoEl.srcObject = stream;
+            videoEl.addEventListener('play',App.onplay);
+            videoEl.addEventListener('pause',App.onpause);
+
+            corpoEl.addEventListener('click',App.controlarVideo);
+            
+            videoEl.onloadedmetadata = function () {
+                canvasEl.width = videoEl.videoWidth;
+                canvasEl.height = videoEl.videoHeight;
+            };
+
+            canvas.hidden = true;
+            ctx.scale(.3,.3)
+
+            //qrReader.callback = function(data){
+            //   reproduzirAudio(data);
+            //}
+            
+
+            App.videoEl = videoEl;
+            App.canvasEl = canvasEl;
+            //App.qrReader = qrReader;
+            App.ctx = ctx;
+            
+        },
+
+        handleError: function (error) {
+            console.log(error);
+        },
+
+        controlarVideo: function(mouse_event){
+           
+           var videoEl = App.videoEl;
+
+            if(videoEl.paused){
+                videoEl.play();
+            }
+            else{
+                videoEl.pause();
+            }
+        },
+
+        onplay: function(event){
+
+            App.animationId = requestAnimationFrame(App.detectar);
+        },
+
+        onpause: function(event){
+
+            cancelAnimationFrame(App.animationId);
+        },
+
+        detectar: function(){
+            
+            var conf = App.configuracoes;
+            var obj_detectar = conf.objetos_a_detectar;
+            var qrcode_lido;
+            var data;
+            var classificadores = [];
+            var detectores = App.detectores;
+            var video = App.videoEl;
+            var canvas = App.canvasEl;
+            var ctx = App.ctx;
+
+            canvas.hidden = true;
+            video.hidden = false
+            
+            if (deteccao_pausada == false){
+            
+                ctx.drawImage(video, 0, 0,canvas.width,canvas.height);            
+                data = ctx.getImageData(0,0,canvas.width,canvas.height);
+                    
+                if(obj_detectar.qrcode){
+                    
+                    //Detectando QR Codes
+                    try{
+                        
+                        // utilizar quando jsqrcode tiver um callback ou exeçao disparada em caso de erro
+                        //qrcode_lido = App.qrReader.decode(data);
+
+                        qrcode_lido = qrcode.decode();
+                        reproduzirAudio(qrcode_lido);
+
+                        deteccao_pausada = true;                    
+                        timeoutDeteccaoQRCode = setTimeout(function(){
+                            deteccao_pausada = false;
+                        },3000);
+                    }catch(e){
+
+                        console.log('Falha no QR Code: ',e);
+                    
+                    }
+                    
+                } // if qrcode == true
+
+                var haar_cascade_length = haar_cascade.length;
+
+                // Este código está dentro deste loop (e não na inicialização do vídeo) porque os atributos videoWidth 
+                // e videoHeight levam cerca de 300ms para serem inicializados depois de que o stream é iniciado
+                if(App.detectores == undefined || video.videoWidth == 0){
+                    var detectores = [];
+                    for (var i = 0;i < haar_cascade_length; i++){
+                        var width = ~~(80 * video.videoWidth / video.videoHeight) || 106;
+                        var height = 80 ;
+                       
+                        detectores.push(new objectdetect.detector(width, height, 1.1, haar_cascade[i]['classifier']));
+                    }
+                    App.detectores = detectores;    
+                }
+                 
+
+                for (var i = 0; i < haar_cascade_length; i++){
+                    
+                    if(obj_detectar[haar_cascade[i].id] == false)
+                        continue;
+                   
+                    //Detectando os objetos no video
+                    var coords = detectores[i].detect(video,1);
+                    
+                    if(coords.length == 0) 
+                        continue;
+                    if(coords[0][4] < parametros_conf.precisao_minima_deteccao)
+                        continue;
+        
+                    var obj = coords[0];
+                    
+                    video.hidden = true;
+                    canvas.hidden = false;
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                
+                    //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
+                    obj[0] *= video.videoWidth / detectores[i].canvas.width;
+                    obj[1] *= video.videoHeight / detectores[i].canvas.height;
+                    obj[2] *= video.videoWidth / detectores[i].canvas.width;
+                    obj[3] *= video.videoHeight / detectores[i].canvas.height;
+
+                    ctx.drawImage(video, 0, 0);
+                    ctx.strokeStyle = 'rgba(255,0,0,1)';
+                    ctx.lineWidth = '4';
+                    ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
+                        
+                    if(!reproduzindo_audio){
+                        reproduzirAudio(haar_cascade[i]['descricao']);
+                        //ultimo_obj_detectado = descricao; 
+                        deteccao_pausada = true;
+                        timeoutDeteccao = setTimeout(function(){
+                            deteccao_pausada = false;   
+                        },5000);
+                    }
+
+                }// for
+
+            }// deteccao_pausada == false
+
+            
+            
+            if (App.videoEl.paused == false)
+                requestAnimationFrame(App.detectar);
+        },// function: detectar
+
+
+        aplicarConfiguracoes: function(){
+            
+            deteccao_pausada = false;
+            var radio_masc = document.getElementById('masculino');
+            var radio_fem = document.getElementById('feminino');
+            var keys = Object.keys(parametros_conf.objetos_a_detectar);
+            var length = keys.length;
+
+            if(radio_masc.checked)
+                var genero_selecionado = radio_masc.value;
+            else{
+                var genero_selecionado = radio_fem.value;
+            }
+
+            for (var i = 0; i < length; i++){
+                var key = keys[i];
+                var elem = document.getElementById(key);
+
+                parametros_conf.objetos_a_detectar[key] = elem.checked;
+            }
+
+            parametros_conf.precisao_minima_deteccao = parseInt(document.getElementById('valor-precisao').innerHTML);
+            parametros_conf.voz = genero_selecionado;
+            
+            salvarConfiguracoes(parametros_conf);
+            fechaModal('modal-config');
+            trocaVariacaoDeAudio(genero_selecionado);
+            App.configuracoes = carregarConfiguracoes();
+
+        }// function: aplicarConfiguracoes
+    };
+
+    App.init();
+
+})();

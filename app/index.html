@@ -187,13 +187,15 @@
 		</div>
 		
 		<div id="corpo">
-			<video id="video"></video>
+			<video id="video" muted autoplay></video>
 			<canvas id="canvas"></canvas>	
 		</div>
 
 	</main>
 	
-	
+	<script src='../node_modules/webrtc-adapter/out/adapter_no_global.js'></script>
+	<!--<script src='../node_modules/qrcode-reader/dist/browser.js'></script>-->
+
 	<!-- build:js static/js/detection.min.js  -->
 	<script src="static/js/screenfull.min.js"></script>
 	<script src="static/js/compatibility.js"></script>

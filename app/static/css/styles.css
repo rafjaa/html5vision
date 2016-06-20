@@ -68,7 +68,7 @@ body{
   overflow:hidden;
 }
 
-#video,#canvas{
+video,#canvas{
   position:absolute;
   top:50%;
   left:50%;
