@@ -180,7 +180,7 @@ i{
 .hidden-modal{
   transform: translate(-50%,-250%);
 }
-#modal-config button[type='button']{
+#modal-config button[type='button'], #modal-info .modal-footer a{
   color: #fff;
   border: 1px solid;
   border-radius: 5%;
@@ -225,7 +225,7 @@ button#aplicar{
   float:right;
   text-align: right;
 }
-#modal-config button[type="button"]:active{
+#modal-config button[type="button"]:active, #modal-info .modal-footer a:active{
   color: gray;
   border: 1px solid gray;
   background-color: white;
@@ -277,6 +277,9 @@ div#checkboxes {
 #modal-info{
   max-width: 800px;
   max-height: 600px;
+}
+#modal-info .modal-footer a{
+  font-size: 18px;
 }
 
 /* Media queries*/
