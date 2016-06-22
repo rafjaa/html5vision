@@ -491,13 +491,6 @@ $(document).ready(function(){
         if (screenfull.enabled){
             screenfull.toggle();
         }
-        var fullscreen_toggle = $('#fullscreen-toggle');
-        var txt = fullscreen_toggle.html();
-
-        if (txt == 'fullscreen_exit')
-            fullscreen_toggle.html('fullscreen');
-        else
-            fullscreen_toggle.html('fullscreen_exit');
     });
 
 });
@@ -516,6 +509,11 @@ $(document).ready(function(){
             
             var aplicarConfiguracoesEl = document.getElementById('aplicar');
             aplicarConfiguracoesEl.addEventListener('click',App.aplicarConfiguracoes);              
+
+            if (screenfull.enabled) {
+                document.addEventListener(screenfull.raw.fullscreenchange, App.toggleTextOnFullscreen);
+                App.toggleTextOnFullscreen();
+            }
 
             navigator.mediaDevices.getUserMedia(App.videoConstraints)
                 .then(App.mediaStream)
@@ -550,8 +548,16 @@ $(document).ready(function(){
             //var qrReader = new QrCode();
 
             videoEl.srcObject = stream;
-            videoEl.addEventListener('play',App.onplay);
-            videoEl.addEventListener('pause',App.onpause);
+            
+            // Atrasa o início da detecção, para dar tempo da api de
+            // áudio carregar e dizer a frase inicial.
+            setTimeout(function(){
+                videoEl.addEventListener('play',App.onplay);
+                videoEl.addEventListener('pause',App.onpause);
+
+                App.onplay();
+            },3500)
+                
 
             corpoEl.addEventListener('click',App.controlarVideo);
             
@@ -750,7 +756,22 @@ $(document).ready(function(){
             trocaVariacaoDeAudio(genero_selecionado);
             App.configuracoes = carregarConfiguracoes();
 
-        }// function: aplicarConfiguracoes
+        },// function: aplicarConfiguracoes
+
+        toggleTextOnFullscreen: function(){
+
+            var fullscreen_toggle = $('#fullscreen-toggle');
+
+
+            if(screenfull.enabled == false)
+                return;
+            
+            if (screenfull.isFullscreen)
+                fullscreen_toggle.html('fullscreen_exit');
+            else
+                fullscreen_toggle.html('fullscreen');
+        
+        }
     };
 
     App.init();
