@@ -545,7 +545,7 @@ $(document).ready(function(){
             var canvasEl = document.getElementById('canvas');
             var corpoEl = document.getElementById('corpo');
             var ctx = canvasEl.getContext( '2d' );
-            //var qrReader = new QrCode();
+            var qrReader = new QrCode();
 
             videoEl.srcObject = stream;
             
@@ -569,14 +569,23 @@ $(document).ready(function(){
             canvas.hidden = true;
             ctx.scale(.3,.3)
 
-            //qrReader.callback = function(data){
-            //   reproduzirAudio(data);
-            //}
+            qrReader.callback = function(data,err){
+                if(data){
+                    reproduzirAudio(data);
+
+                    deteccao_pausada = true;                    
+                    timeoutDeteccaoQRCode = setTimeout(function(){
+                        deteccao_pausada = false;
+                    },3000);
+                }
+                else
+                    console.log('Erro no QR Code: ', err);
+            }
             
 
             App.videoEl = videoEl;
             App.canvasEl = canvasEl;
-            //App.qrReader = qrReader;
+            App.qrReader = qrReader;
             App.ctx = ctx;
             
         },
@@ -611,7 +620,6 @@ $(document).ready(function(){
             
             var conf = App.configuracoes;
             var obj_detectar = conf.objetos_a_detectar;
-            var qrcode_lido;
             var data;
             var classificadores = [];
             var detectores = App.detectores;
@@ -629,24 +637,7 @@ $(document).ready(function(){
                     
                 if(obj_detectar.qrcode){
                     
-                    //Detectando QR Codes
-                    try{
-                        
-                        // utilizar quando jsqrcode tiver um callback ou exeçao disparada em caso de erro
-                        //qrcode_lido = App.qrReader.decode(data);
-
-                        qrcode_lido = qrcode.decode();
-                        reproduzirAudio(qrcode_lido);
-
-                        deteccao_pausada = true;                    
-                        timeoutDeteccaoQRCode = setTimeout(function(){
-                            deteccao_pausada = false;
-                        },3000);
-                    }catch(e){
-
-                        console.log('Falha no QR Code: ',e);
-                    
-                    }
+                    App.qrReader.decode(data);
                     
                 } // if qrcode == true
 

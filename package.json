@@ -34,14 +34,14 @@
     "gulp-gh-pages": "^0.5.4",
     "gulp-htmlmin": "^2.0.0",
     "gulp-if": "^2.0.0",
-    "gulp-uglify": "^1.5.3",
+    "gulp-uglify": "^1.5.4",
     "gulp-useref": "^3.0.8",
     "run-sequence": "^1.1.5"
   },
   "dependencies": {
     "jquery": "^3.0.0",
     "jquery-migrate": "^3.0.0",
-    "qrcode-reader": "^0.1.1",
+    "qrcode-reader": "^0.2.1",
     "screenfull": "^3.0.0",
     "webrtc-adapter": "^1.4.0"
   }
