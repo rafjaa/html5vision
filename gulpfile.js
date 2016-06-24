@@ -11,6 +11,7 @@ var runSequence = require('run-sequence'); // run task in sequences
 var debug = require('gulp-debug'); 
 var cache = require('gulp-appcache');
 var ghPages = require('gulp-gh-pages'); // publish contents in ghpages
+var critical = require('critical');
 
 /* 
 	Tasks for dev 
@@ -138,6 +139,18 @@ gulp.task('deploy',['build'],function(){
 		.pipe(ghPages());
 });
 
+gulp.task('critical', function () {
+	critical.generate({
+        inline: true,
+        base: 'dist/',
+        src: 'index.html',
+        dest: 'dist/index.html',
+        minify: true,
+        width: 320,
+        height: 480
+    });
+});
+
 /* 
 	Main tasks 
 */
@@ -153,7 +166,7 @@ gulp.task('build', function (callback) {
   runSequence('clean:dist', 
     'autoprefixer','build_html',
     ['build_fonts','build_icons','build_jsons'],
-    'cache','build_favicons',
+    'cache','build_favicons','critical',
     callback
   )
 })

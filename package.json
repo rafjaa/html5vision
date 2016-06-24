@@ -25,6 +25,7 @@
   "homepage": "https://github.com/rafjaa/html5vision#readme",
   "devDependencies": {
     "browser-sync": "^2.12.3",
+    "critical": "^0.7.3",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-appcache": "0.0.4",
