@@ -11,7 +11,7 @@ var runSequence = require('run-sequence'); // run task in sequences
 var debug = require('gulp-debug'); 
 var cache = require('gulp-appcache');
 var ghPages = require('gulp-gh-pages'); // publish contents in ghpages
-var critical = require('critical');
+var critical = require('critical').stream;
 
 /* 
 	Tasks for dev 
@@ -133,22 +133,40 @@ gulp.task('clean:dist',function(){
 	return del.sync('dist')
 });
 
-gulp.task('deploy',['build'],function(){
+gulp.task('deploy',function(callback){
+	runSequence('build','critical','ghPages',callback);
+});
+
+gulp.task('ghPages',function(){
 	return gulp.src('./dist/**/*')
-		//.pipe(debug())
+		.pipe(debug())
 		.pipe(ghPages());
 });
 
 gulp.task('critical', function () {
-	critical.generate({
-        inline: true,
+	
+	return gulp.src('dist/index.html')
+	.pipe(critical({
+		ignore: ['@font-face'],
+		inline: true,
         base: 'dist/',
-        src: 'index.html',
-        dest: 'dist/index.html',
+        //src: 'index.html',
+        //css: 'dist/static/css/styles.min.css',
+        //dest: 'dist/index.html',
         minify: true,
-        width: 320,
-        height: 480
-    });
+        //extract: true,
+        dimensions: [{
+        	height: 200,
+        	width: 500
+    	},{
+        	height: 640,
+        	width: 960
+    	},{
+        	height: 900,
+        	width: 1200
+    	}],
+	}))
+	.pipe(gulp.dest('dist'))    
 });
 
 /* 
@@ -166,7 +184,7 @@ gulp.task('build', function (callback) {
   runSequence('clean:dist', 
     'autoprefixer','build_html',
     ['build_fonts','build_icons','build_jsons'],
-    'cache','build_favicons','critical',
+    'cache','build_favicons',
     callback
   )
 })
