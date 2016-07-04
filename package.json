@@ -15,7 +15,9 @@
     "html5",
     "css3",
     "jquery",
-    "opencv"
+    "opencv",
+    "js-objectdetect",
+    "qrcode-reader"
   ],
   "author": "",
   "license": "ISC",
