@@ -15,6 +15,8 @@ deteccao_pausada = false;
 
 parametros_conf = undefined;
 
+audio_timeout = undefined;
+
 /*
     Configura os inputs do menu de configurações com as informações
     contidas na variável passada por parâmetro.
@@ -149,6 +151,7 @@ var inicializaAPIDeFalaNativa = function(voice){
     speechApiObj.onend = function(e) {
       console.log('Audio "',e.utterance.text,'" reproduzido.');
       reproduzindo_audio = false;
+      clearTimeout(audio_timeout);
     };
     speechApiObj.onerror = function(e) {
       console.log('Erro na reprodução de "',e.utterance.text, '"');
@@ -195,9 +198,16 @@ var reproduzirAudio = function(msg){
         // Cancela a execução de algum áudio em reprodução, e remove o áudio, 
         // se estiver na fila de reprodução.
         window.speechSynthesis.cancel();
+        reproduzindo_audio = false;
+        console.log('falas canceladas. reproduzindo_audio =  ', reproduzindo_audio)
 
         speechApiObj.text = msg;
         window.speechSynthesis.speak(speechApiObj);
+        audio_timeout = setTimeout(function(){
+            console.log('Cancelando audios.');
+            window.speechSynthesis.cancel();
+            reproduzindo_audio = false}
+        ,20000);
 
     }else{//Reproduzir audio usando meSpeak
         if(!meSpeak.isConfigLoaded()){
@@ -698,7 +708,7 @@ $(document).ready(function(){
 
                     var descricao = haar_cascade[i]['descricao'];
                     ctx.fillText(descricao, obj[0], obj[1] + obj[3] + 25);
-                        
+
                     if(!reproduzindo_audio){
                         reproduzirAudio(haar_cascade[i]['descricao']);
                         //ultimo_obj_detectado = descricao; 
