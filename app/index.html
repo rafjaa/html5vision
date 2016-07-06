@@ -10,6 +10,10 @@
 	
 	<!--build:css static/css/styles.min.css --> 
 	<link rel="stylesheet" href="static/css/styles.css" />
+    
+    <link href="../node_modules/snackbarjs/dist/snackbar.min.css" rel="stylesheet">
+    <link href="../node_modules/snackbarjs/themes-css/material.css" rel="stylesheet">
+	
 	<!-- endbuild -->
 
 	<!-- Favicons -->
@@ -180,8 +184,9 @@
 		</div>
 		
 		<div id="corpo">
-			<video id="video" muted autoplay></video>
-			<canvas id="canvas"></canvas>	
+			<video id="video" muted autoplay hidden></video>
+			<canvas id="canvas" hidden></canvas>
+			<span id="toastObjeto" data-style="toast" data-content="msg"></span>
 		</div>
 
 	</main>	
@@ -206,6 +211,8 @@
 	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
 	<script src="../node_modules/jquery-migrate/dist/jquery-migrate.js"></script>
 	
+	<script src="../node_modules/snackbarjs/dist/snackbar.min.js"></script>
+
 	<script src="static/js/main.js"></script>
 	<!-- endbuild -->
 </body>

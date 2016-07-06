@@ -364,15 +364,7 @@ $(document).ready(function(){
     divGeneroDaVoz = $('#conf-vozes');
 
     //Troca a variação de voz, de acordo com o selecionado
-    trocaVariacaoDeAudio(parametros_conf.voz);    
-
-    /*
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    canvas.hidden = true;
-    ctx = canvas.getContext( '2d' );
-    ctx.scale(.3,.3);
-    */
+    trocaVariacaoDeAudio(parametros_conf.voz);
 
     /*
         Posterga a reprodução da mensagem de inicialização, para dar tempo de a voz
@@ -556,9 +548,12 @@ $(document).ready(function(){
             var corpoEl = document.getElementById('corpo');
             var ctx = canvasEl.getContext( '2d' );
             var qrReader = new QrCode();
+            var $toast = $("#toastObjeto");
+            var toast = document.getElementById('toastObjeto');
 
             videoEl.srcObject = stream;
-            
+            videoEl.hidden = false;
+
             // Atrasa o início da detecção, para dar tempo da api de
             // áudio carregar e dizer a frase inicial.
             setTimeout(function(){
@@ -576,12 +571,14 @@ $(document).ready(function(){
                 canvasEl.height = videoEl.videoHeight;
             };
 
-            canvas.hidden = true;
             ctx.scale(.3,.3)
 
             qrReader.callback = function(data,err){
                 if(data){
                     reproduzirAudio(data);
+                    
+                    App.toast.dataset.content = data;
+                    App.$toast.snackbar("show");
 
                     deteccao_pausada = true;                    
                     timeoutDeteccaoQRCode = setTimeout(function(){
@@ -591,12 +588,13 @@ $(document).ready(function(){
                 else
                     console.log('Erro no QR Code: ', err);
             }
-            
 
             App.videoEl = videoEl;
             App.canvasEl = canvasEl;
             App.qrReader = qrReader;
             App.ctx = ctx;
+            App.toast = toast;
+            App.$toast = $toast;
             
         },
 
@@ -637,9 +635,6 @@ $(document).ready(function(){
             var canvas = App.canvasEl;
             var ctx = App.ctx;
 
-            canvas.hidden = true;
-            video.hidden = false
-            
             if (deteccao_pausada == false){
 
                 ctx.drawImage(video, 0, 0,canvas.width,canvas.height);            
@@ -679,35 +674,10 @@ $(document).ready(function(){
                         continue;
                     if(coords[0][4] < parametros_conf.precisao_minima_deteccao)
                         continue;
-        
-                    var obj = coords[0];
                     
-                    video.hidden = true;
-                    canvas.hidden = false;
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                
-                    //Reescalonando as coordenadas do detector para as coordenadas do vídeo.
-                    obj[0] *= video.videoWidth / detectores[i].canvas.width;
-                    obj[1] *= video.videoHeight / detectores[i].canvas.height;
-                    obj[2] *= video.videoWidth / detectores[i].canvas.width;
-                    obj[3] *= video.videoHeight / detectores[i].canvas.height;
-
-                    ctx.drawImage(video, 0, 0);
-
-                    ctx.font = '25px Roboto';
-                    ctx.fillStyle = 'rgb(255,0,0)';
-
-                    ctx.shadowColor = 'black';
-                    ctx.shadowOffsetX = 1;
-                    ctx.shadowOffsetY = 1;
-                    ctx.strokeStyle = 'rgba(255,0,0,1)';
-                    ctx.lineWidth = '4';
-
-                    ctx.strokeRect(obj[0], obj[1], obj[2], obj[3]);
-
                     var descricao = haar_cascade[i]['descricao'];
-                    ctx.fillText(descricao, obj[0], obj[1] + obj[3] + 25);
+                    App.toast.dataset.content = descricao;
+                    App.$toast.snackbar("show");
 
                     if(!reproduzindo_audio){
                         reproduzirAudio(haar_cascade[i]['descricao']);

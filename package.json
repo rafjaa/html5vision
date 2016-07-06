@@ -46,6 +46,7 @@
     "jquery-migrate": "^3.0.0",
     "qrcode-reader": "^0.2.1",
     "screenfull": "^3.0.0",
+    "snackbarjs": "^1.1.0",
     "webrtc-adapter": "^1.4.0"
   }
 }
